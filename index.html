@@ -34,7 +34,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Supabase JS v2, Chart.js & Lucide Icons -->
+  <!-- Supabase JS v2, Chart.js & Lucide Icons CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -59,16 +59,16 @@
     .glass-card-glow {
       background: rgba(19, 19, 26, 0.9);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 107, 53, 0.28);
-      box-shadow: 0 0 30px -5px rgba(255, 107, 53, 0.2), 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      box-shadow: 0 0 35px -5px rgba(255, 107, 53, 0.22), 0 8px 32px 0 rgba(0, 0, 0, 0.6);
     }
     .interactive-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .interactive-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(255, 107, 53, 0.4);
-      box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.15);
+      border-color: rgba(255, 107, 53, 0.45);
+      box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.2);
     }
     .mesh-glow {
       position: absolute;
@@ -76,25 +76,24 @@
       filter: blur(100px);
       pointer-events: none;
       opacity: 0.22;
-      animation: floatMesh 10s infinite alternate ease-in-out;
+      animation: floatMesh 9s infinite alternate ease-in-out;
     }
     @keyframes floatMesh {
       0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(25px, 20px) scale(1.15); }
+      100% { transform: translate(30px, 25px) scale(1.18); }
     }
     .particle {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 107, 53, 0.5);
       pointer-events: none;
-      animation: particleFly 7s infinite linear;
+      animation: particleFly 6s infinite linear;
     }
     @keyframes particleFly {
       0% { transform: translateY(0); opacity: 0.2; }
       50% { opacity: 0.8; }
-      100% { transform: translateY(-90px); opacity: 0; }
+      100% { transform: translateY(-85px); opacity: 0; }
     }
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -134,7 +133,7 @@
             <span class="font-bold text-white tracking-tight text-base">Secure Plug</span>
             <span class="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-brand/20 text-brand border border-brand/30">Master</span>
           </div>
-          <p class="text-[10px] text-textSec hidden sm:block">EMI Administration</p>
+          <p class="text-[10px] text-textSec hidden sm:block">Device EMI Management Portal</p>
         </div>
       </div>
 
@@ -528,7 +527,6 @@
 
       <!-- Retailers Cards Grid -->
       <div id="retailersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered dynamically -->
         <div class="col-span-full text-center py-12 text-textSec text-xs">
           Loading retailers...
         </div>
@@ -578,7 +576,6 @@
 
       <!-- Devices Cards Grid -->
       <div id="devicesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered dynamically -->
         <div class="col-span-full text-center py-12 text-textSec text-xs">
           Loading devices...
         </div>
@@ -916,11 +913,11 @@
     // --------------------------------------------------------
     // SUPABASE CONFIG & CLIENT (RULE 5)
     // --------------------------------------------------------
-    const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
+    const URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
+    const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
 
     console.log("Initializing Supabase Client for Secure Plug Admin...");
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    const sb = (window.supabase || supabase).createClient('https://rmqqhbcvvuojvlefuzjd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A', {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -1662,7 +1659,6 @@
         const { data, error } = await sb.from('payments').insert([payPayload]).select();
         if (error) throw error;
 
-        // If a device was tied, also increment emi_paid or unlock if settled
         if (devId && selectedDev) {
           const newPaid = (Number(selectedDev.emi_paid) || 0) + 1;
           await sb.from('devices').update({ emi_paid: newPaid }).eq('id', devId);
@@ -1725,7 +1721,6 @@
 
       try {
         console.log(`[COMMAND] Sending ${action} to device_commands for device:`, devId);
-        // Insert remote command into device_commands
         await sb.from('device_commands').insert([
           {
             device_id: devId,
@@ -1734,7 +1729,6 @@
           }
         ]);
 
-        // Update local device status in devices table
         const isLockedVal = (action === 'LOCK');
         await sb.from('devices').update({
           is_locked: isLockedVal,
