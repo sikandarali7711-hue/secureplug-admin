@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Secure Plug Admin - Device EMI Management Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#0a0a0f', cardDark: '#13131a', borderDark: '#1f1f2e', textSec: '#a0a0b0',
+            brand: { DEFAULT: '#ff6b35', hover: '#f95716' },
+            statusSuccess: '#22c55e', statusDanger: '#ef4444', statusWarning: '#f59e0b'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background-color: #0a0a0f; color: #fff; -webkit-tap-highlight-color: transparent; }
+    .mesh-glow { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; opacity: 0.22; animation: pulseGlow 8s infinite alternate ease-in-out; }
+    @keyframes pulseGlow { 0% { transform: scale(1); opacity: 0.18; } 100% { transform: scale(1.15); opacity: 0.28; } }
+    .glass-card { background: rgba(19, 19, 26, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 107, 53, 0.2); box-shadow: 0 0 35px -5px rgba(255, 107, 53, 0.25), 0 8px 32px 0 rgba(0,0,0,0.5); }
+    .glass-subtle { background: rgba(19, 19, 26, 0.75); backdrop-filter: blur(10px); border: 1px solid #1f1f2e; }
+    .particle { position: absolute; border-radius: 50%; background: rgba(255,107,53,0.45); pointer-events: none; animation: floatP 6s infinite linear; }
+    @keyframes floatP { 0% { transform: translateY(0); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateY(-80px); opacity: 0; } }
+  </style>
+</head>
+<body class="min-h-screen bg-bgDark text-white antialiased flex flex-col">
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] opacity-0 -translate-y-6 pointer-events-none transition-all duration-300 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border">
+    <div id="toast-icon"></div>
+    <div id="toast-msg"></div>
+  </div>
+
+  <!-- 1. LOGIN SCREEN -->
+  <section id="login-section" class="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+    <div class="mesh-glow bg-[#ff6b35] w-96 h-96 -top-10 -left-10"></div>
+    <div class="mesh-glow bg-[#22c55e] w-96 h-96 -bottom-10 -right-10"></div>
+    <div class="particle w-2 h-2 top-1/4 left-1/5"></div>
+    <div class="particle w-1.5 h-1.5 top-2/3 left-1/6" style="animation-delay: 2s;"></div>
+    <div class="particle w-2 h-2 top-1/3 right-1/4" style="animation-delay: 3s;"></div>
+
+    <div class="relative w-full max-w-[420px] glass-card rounded-[20px] p-7 sm:p-8 z-10">
+      <div class="text-center mb-5">
+        <div class="w-20 h-20 mx-auto mb-3.5 rounded-2xl bg-gradient-to-br from-[#ff6b35] to-[#22c55e] p-0.5 shadow-lg flex items-center justify-center">
+          <div class="w-full h-full bg-[#13131a] rounded-[14px] flex items-center justify-center">
+            <svg class="w-11 h-11 text-[#ff6b35]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,107,53,0.12)"/>
+              <path d="M12 7v5M9 10h6" stroke="#22c55e" stroke-width="2.5"/>
+              <circle cx="12" cy="15" r="1.5" fill="#ff6b35"/>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-white tracking-tight">Secure Plug Admin</h1>
+        <p class="text-xs text-textSec mt-1">Device EMI Management Portal</p>
+      </div>
+
+      <div class="mb-4 p-3 rounded-xl bg-[#ff6b35]/10 border border-[#ff6b35]/25 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff6b35] to-[#22c55e] flex items-center justify-center font-bold text-xs text-white shrink-0">SA</div>
+        <div>
+          <p class="text-xs font-semibold text-white">👋 Welcome back, Sikandar</p>
+          <p class="text-[11px] text-[#22c55e] font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse"></span> Signed in as Sikandar Ali
+          </p>
+        </div>
+      </div>
+
+      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-statusDanger/10 border border-statusDanger/30 text-statusDanger text-xs flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+        <span id="login-error-text" class="leading-tight"></span>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-textSec uppercase tracking-wider mb-1">Email Address</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-textSec"></i>
+            <input id="login-email" type="email" required placeholder="you@example.com" value="ladla123457ali@gmail.com" class="w-full pl-10 pr-3.5 py-3 bg-[#1a1a1a] border border-borderDark focus:border-brand rounded-xl text-sm text-white outline-none transition-all">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-textSec uppercase tracking-wider mb-1">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-textSec"></i>
+            <input id="login-password" type="password" required placeholder="Enter your password" class="w-full pl-10 pr-10 py-3 bg-[#1a1a1a] border border-borderDark focus:border-brand rounded-xl text-sm text-white outline-none transition-all">
+            <button type="button" id="togglePass" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-textSec hover:text-white">
+              <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+        <button id="loginBtn" type="submit" class="w-full py-4 bg-gradient-to-r from-[#ff6b35] to-[#f95716] hover:brightness-110 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+          <span id="loginBtnText">Sign In to Dashboard</span>
+          <i data-lucide="arrow-right" id="loginBtnIcon" class="w-4 h-4"></i>
+        </button>
+      </form>
+      <div class="mt-5 text-center border-t border-borderDark pt-3">
+        <p class="text-[11px] text-gray-400">Authorized for <span class="text-white font-semibold">Master Admin</span> only</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. DASHBOARD APP -->
+  <div id="dashboard-app" class="hidden min-h-screen flex flex-col pb-16 md:pb-0">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-cardDark/90 backdrop-blur-md border-b border-borderDark px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="app.setTab('home')">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff6b35] to-[#22c55e] p-0.5 flex items-center justify-center shadow">
+          <div class="w-full h-full bg-[#13131a] rounded-[9px] flex items-center justify-center">
+            <i data-lucide="shield" class="w-4 h-4 text-[#ff6b35]"></i>
+          </div>
+        </div>
+        <div>
+          <span class="font-bold text-white tracking-tight text-base">Secure Plug</span>
+          <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 ml-1 rounded bg-brand/20 text-brand">Admin</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-1 bg-[#0a0a0f] p-1 rounded-xl border border-borderDark text-xs font-semibold">
+        <button onclick="app.setTab('home')" class="nav-tab px-3.5 py-1.5 rounded-lg text-white" data-tab="home">Home</button>
+        <button onclick="app.setTab('retailers')" class="nav-tab px-3.5 py-1.5 rounded-lg text-textSec hover:text-white" data-tab="retailers">Retailers</button>
+        <button onclick="app.setTab('devices')" class="nav-tab px-3.5 py-1.5 rounded-lg text-textSec hover:text-white" data-tab="devices">Devices</button>
+        <button onclick="app.setTab('payments')" class="nav-tab px-3.5 py-1.5 rounded-lg text-textSec hover:text-white" data-tab="payments">Payments</button>
+        <button onclick="app.setTab('reports')" class="nav-tab px-3.5 py-1.5 rounded-lg text-textSec hover:text-white" data-tab="reports">Reports</button>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-[#0a0a0f] py-1 px-2.5 rounded-full border border-borderDark">
+          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#ff6b35] to-[#22c55e] flex items-center justify-center text-[10px] font-bold text-white">SA</div>
+          <span class="text-xs font-semibold text-white hidden sm:block">Sikandar Ali</span>
+        </div>
+        <button onclick="app.logout()" title="Logout" class="p-2 rounded-xl bg-[#0a0a0f] text-textSec hover:text-statusDanger border border-borderDark">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Views -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      
+      <!-- TAB: HOME -->
+      <section id="tab-home" class="space-y-6">
+        <div class="rounded-2xl bg-gradient-to-r from-cardDark via-[#181822] to-cardDark border border-brand/20 p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white">Assalam-o-Alaikum, Sikandar Ali 👋</h2>
+            <p class="text-xs sm:text-sm text-textSec mt-0.5">Here's your business overview across retail partners and devices.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="app.syncAll(true)" class="px-3 py-2 rounded-xl bg-cardDark border border-borderDark text-xs font-semibold text-textSec hover:text-white flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+            </button>
+            <button onclick="app.openModal('retailerModal')" class="px-3.5 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-semibold flex items-center gap-1.5 shadow">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Retailer
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-subtle rounded-2xl p-4 sm:p-5 border border-borderDark hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between text-textSec text-xs uppercase font-semibold">Total Retailers <i data-lucide="store" class="w-4 h-4 text-brand"></i></div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span id="stat-retailers" class="text-2xl sm:text-3xl font-extrabold text-white">0</span>
+              <span class="text-[10px] text-statusSuccess bg-statusSuccess/10 px-2 py-0.5 rounded-full font-bold">+ Active</span>
+            </div>
+          </div>
+          <div class="glass-subtle rounded-2xl p-4 sm:p-5 border border-borderDark hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between text-textSec text-xs uppercase font-semibold">Active Devices <i data-lucide="smartphone" class="w-4 h-4 text-statusSuccess"></i></div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span id="stat-devices" class="text-2xl sm:text-3xl font-extrabold text-white">0</span>
+              <span class="text-[10px] text-statusSuccess bg-statusSuccess/10 px-2 py-0.5 rounded-full font-bold">Enrolled</span>
+            </div>
+          </div>
+          <div class="glass-subtle rounded-2xl p-4 sm:p-5 border border-borderDark hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between text-textSec text-xs uppercase font-semibold">Total Revenue <i data-lucide="coins" class="w-4 h-4 text-blue-400"></i></div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span id="stat-revenue" class="text-xl sm:text-2xl font-extrabold text-white truncate">PKR 0</span>
+              <span class="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full font-bold">Settled</span>
+            </div>
+          </div>
+          <div class="glass-subtle rounded-2xl p-4 sm:p-5 border border-borderDark hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between text-textSec text-xs uppercase font-semibold">Overdue EMIs <i data-lucide="alert-triangle" class="w-4 h-4 text-statusDanger"></i></div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span id="stat-overdue" class="text-2xl sm:text-3xl font-extrabold text-statusDanger">0</span>
+              <span class="text-[10px] text-statusDanger bg-statusDanger/10 px-2 py-0.5 rounded-full font-bold">Lock Review</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 glass-subtle rounded-2xl p-5 border border-borderDark">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4 text-brand"></i> Monthly Collections</h3>
+              <span class="text-[11px] text-textSec font-mono">Last 6 Months</span>
+            </div>
+            <div class="h-60"><canvas id="collectionsChart"></canvas></div>
+          </div>
+          <div class="glass-subtle rounded-2xl p-5 border border-borderDark">
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5 mb-3"><i data-lucide="pie-chart" class="w-4 h-4 text-statusSuccess"></i> Device Status</h3>
+            <div class="h-60 flex items-center justify-center"><canvas id="statusChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="glass-subtle rounded-2xl p-5 border border-borderDark">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="activity" class="w-4 h-4 text-brand"></i> Recent Retailers Added</h3>
+            <button onclick="app.setTab('retailers')" class="text-xs text-brand hover:underline font-semibold">View All</button>
+          </div>
+          <div id="recent-retailers" class="space-y-2.5">
+            <p class="text-xs text-textSec text-center py-4">Loading activity...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: RETAILERS -->
+      <section id="tab-retailers" class="hidden space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div><h2 class="text-xl font-bold text-white">Retailers</h2><p class="text-xs text-textSec">Businesses table records</p></div>
+          <div class="flex items-center gap-2">
+            <input id="search-ret" oninput="app.filterRetailers()" type="text" placeholder="Search retailers..." class="px-3.5 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none w-48 sm:w-60 focus:border-brand">
+            <button onclick="app.openModal('retailerModal')" class="px-3.5 py-2 bg-brand text-white rounded-xl text-xs font-semibold flex items-center gap-1 whitespace-nowrap shadow"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add</button>
+          </div>
+        </div>
+        <div class="glass-subtle rounded-2xl border border-borderDark overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#111118] text-textSec uppercase font-semibold text-[11px] border-b border-borderDark">
+              <tr><th class="p-3.5">Business</th><th class="p-3.5">Owner</th><th class="p-3.5">City</th><th class="p-3.5">Phone</th><th class="p-3.5">License Key</th><th class="p-3.5">Status</th><th class="p-3.5 text-right">Actions</th></tr>
+            </thead>
+            <tbody id="ret-tbody" class="divide-y border-borderDark"><tr><td colspan="7" class="p-6 text-center text-textSec">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB: DEVICES -->
+      <section id="tab-devices" class="hidden space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div><h2 class="text-xl font-bold text-white">Devices</h2><p class="text-xs text-textSec">EMI devices and remote locking</p></div>
+          <div class="flex items-center gap-2">
+            <input id="search-dev" oninput="app.filterDevices()" type="text" placeholder="Search IMEI / Model..." class="px-3.5 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none w-48 focus:border-brand">
+            <select id="filter-dev" onchange="app.filterDevices()" class="px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option></select>
+          </div>
+        </div>
+        <div class="glass-subtle rounded-2xl border border-borderDark overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#111118] text-textSec uppercase font-semibold text-[11px] border-b border-borderDark">
+              <tr><th class="p-3.5">IMEI</th><th class="p-3.5">Model</th><th class="p-3.5">Customer / Shop</th><th class="p-3.5">EMI Progress</th><th class="p-3.5">Status</th><th class="p-3.5 text-right">Action</th></tr>
+            </thead>
+            <tbody id="dev-tbody" class="divide-y border-borderDark"><tr><td colspan="6" class="p-6 text-center text-textSec">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB: PAYMENTS -->
+      <section id="tab-payments" class="hidden space-y-4">
+        <div class="flex justify-between items-center">
+          <div><h2 class="text-xl font-bold text-white">Payments</h2><p class="text-xs text-textSec">Installment transactions log</p></div>
+          <button onclick="app.openModal('paymentModal')" class="px-3.5 py-2 bg-statusSuccess hover:brightness-110 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Record Payment</button>
+        </div>
+        <div class="glass-subtle rounded-2xl border border-borderDark overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#111118] text-textSec uppercase font-semibold text-[11px] border-b border-borderDark">
+              <tr><th class="p-3.5">Ref #</th><th class="p-3.5">Date</th><th class="p-3.5">Business / Customer</th><th class="p-3.5">Amount</th><th class="p-3.5">Method</th><th class="p-3.5">Notes</th></tr>
+            </thead>
+            <tbody id="pay-tbody" class="divide-y border-borderDark"><tr><td colspan="6" class="p-6 text-center text-textSec">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB: REPORTS -->
+      <section id="tab-reports" class="hidden space-y-5">
+        <div class="flex justify-between items-center">
+          <div><h2 class="text-xl font-bold text-white">Reports & Recovery Analytics</h2><p class="text-xs text-textSec">Performance breakdowns & export</p></div>
+          <button onclick="app.exportCSV()" class="px-3.5 py-2 bg-[#1a1a1a] hover:bg-[#22222e] border border-borderDark text-white text-xs font-semibold rounded-xl flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5 text-brand"></i> Export CSV</button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="glass-subtle rounded-2xl p-5 border border-borderDark">
+            <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-brand"></i> City-wise Recovery Spread</h3>
+            <div class="h-60"><canvas id="cityChart"></canvas></div>
+          </div>
+          <div class="glass-subtle rounded-2xl p-5 border border-borderDark">
+            <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-1.5"><i data-lucide="target" class="w-4 h-4 text-statusSuccess"></i> Collections vs Target Goal</h3>
+            <div class="h-60"><canvas id="targetChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mobile Nav -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#13131a]/95 backdrop-blur-md border-t border-borderDark flex items-center justify-around py-2">
+      <button onclick="app.setTab('home')" class="mob-tab flex flex-col items-center gap-0.5 text-brand text-[10px] font-semibold" data-tab="home"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Home</span></button>
+      <button onclick="app.setTab('retailers')" class="mob-tab flex flex-col items-center gap-0.5 text-textSec text-[10px] font-semibold" data-tab="retailers"><i data-lucide="store" class="w-4 h-4"></i><span>Retailers</span></button>
+      <button onclick="app.setTab('devices')" class="mob-tab flex flex-col items-center gap-0.5 text-textSec text-[10px] font-semibold" data-tab="devices"><i data-lucide="smartphone" class="w-4 h-4"></i><span>Devices</span></button>
+      <button onclick="app.setTab('payments')" class="mob-tab flex flex-col items-center gap-0.5 text-textSec text-[10px] font-semibold" data-tab="payments"><i data-lucide="banknote" class="w-4 h-4"></i><span>Payments</span></button>
+      <button onclick="app.setTab('reports')" class="mob-tab flex flex-col items-center gap-0.5 text-textSec text-[10px] font-semibold" data-tab="reports"><i data-lucide="bar-chart-3" class="w-4 h-4"></i><span>Reports</span></button>
+    </nav>
+  </div>
+
+  <!-- MODALS -->
+  <!-- Retailer Modal -->
+  <div id="retailerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl w-full max-w-md p-5 border border-borderDark shadow-2xl relative">
+      <div class="flex justify-between items-center pb-3 border-b border-borderDark">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="store" class="w-4 h-4 text-brand"></i> <span id="retModalTitle">Add Retailer</span></h3>
+        <button onclick="app.closeModal('retailerModal')" class="text-textSec hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="app.saveRetailer(event)" class="mt-3.5 space-y-3">
+        <input type="hidden" id="ret-id">
+        <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Business Name *</label><input id="ret-name" required placeholder="Al-Madina Telecom" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none focus:border-brand"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Owner Name *</label><input id="ret-owner" required placeholder="Usman Ali" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none focus:border-brand"></div>
+          <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">City *</label><input id="ret-city" required placeholder="Lahore" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none focus:border-brand"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Phone</label><input id="ret-phone" placeholder="0300-1234567" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"></div>
+          <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Email</label><input id="ret-email" type="email" placeholder="shop@secureplug.pk" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"></div>
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase font-semibold text-textSec mb-1">License Key</label>
+          <div class="flex gap-2">
+            <input id="ret-key" placeholder="SP-PK-XXXX-2026" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs font-mono text-brand outline-none">
+            <button type="button" onclick="document.getElementById('ret-key').value = app.generateKey()" class="px-3 py-2 bg-[#222230] text-xs font-semibold rounded-xl">Generate</button>
+          </div>
+        </div>
+        <div class="pt-2 flex justify-end gap-2 border-t border-borderDark">
+          <button type="button" onclick="app.closeModal('retailerModal')" class="px-3.5 py-1.5 text-xs text-textSec hover:text-white">Cancel</button>
+          <button type="submit" id="retSaveBtn" class="px-4 py-1.5 bg-brand text-white text-xs font-bold rounded-xl shadow">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Command Modal -->
+  <div id="cmdModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl w-full max-w-sm p-5 border border-borderDark shadow-2xl relative">
+      <div class="flex justify-between items-center pb-2.5 border-b border-borderDark">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-4 h-4 text-brand"></i> Remote Command</h3>
+        <button onclick="app.closeModal('cmdModal')" class="text-textSec hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="mt-3 space-y-3 text-xs">
+        <div class="p-3 bg-[#1a1a1a] rounded-xl border border-borderDark space-y-1 font-mono text-[11px]">
+          <div>Target IMEI: <span id="cmd-imei" class="font-bold text-white"></span></div>
+          <div>Action: <span id="cmd-action" class="font-bold uppercase"></span></div>
+        </div>
+        <p class="text-[11px] text-textSec">This command will insert into <code class="text-brand">device_commands</code> and instantly signal the Knox client.</p>
+        <div class="pt-2 flex justify-end gap-2 border-t border-borderDark">
+          <button type="button" onclick="app.closeModal('cmdModal')" class="px-3 py-1.5 text-textSec hover:text-white">Cancel</button>
+          <button type="button" id="cmdConfirmBtn" onclick="app.confirmCommand()" class="px-4 py-1.5 text-white font-bold rounded-xl shadow">Transmit Command</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl w-full max-w-sm p-5 border border-borderDark shadow-2xl relative">
+      <div class="flex justify-between items-center pb-2.5 border-b border-borderDark">
+        <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i data-lucide="banknote" class="w-4 h-4 text-statusSuccess"></i> Record Payment</h3>
+        <button onclick="app.closeModal('paymentModal')" class="text-textSec hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="app.savePayment(event)" class="mt-3.5 space-y-3">
+        <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Retailer / Partner</label><select id="pay-business" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"></select></div>
+        <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Amount (PKR) *</label><input id="pay-amt" type="number" required placeholder="5000" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"></div>
+        <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Method</label><select id="pay-meth" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option></select></div>
+        <div><label class="block text-[10px] uppercase font-semibold text-textSec mb-1">Notes</label><input id="pay-note" placeholder="Installment note" class="w-full px-3 py-2 bg-[#1a1a1a] border border-borderDark rounded-xl text-xs text-white outline-none"></div>
+        <div class="pt-2 flex justify-end gap-2 border-t border-borderDark">
+          <button type="button" onclick="app.closeModal('paymentModal')" class="px-3.5 py-1.5 text-xs text-textSec hover:text-white">Cancel</button>
+          <button type="submit" class="px-4 py-1.5 bg-statusSuccess text-white text-xs font-bold rounded-xl shadow">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // SUPABASE CONFIG
+    const SUPABASE_URL = "https://rmqqhbcvvuojvlefuzjd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage }
+    });
+
+    const app = {
+      user: null, businesses: [], devices: [], payments: [], emiPlans: [], charts: {}, selectedDev: null, selectedAct: null,
+
+      async init() {
+        lucide.createIcons();
+        document.getElementById('togglePass')?.addEventListener('click', () => {
+          const p = document.getElementById('login-password');
+          p.type = p.type === 'password' ? 'text' : 'password';
+          document.getElementById('eyeIcon').setAttribute('data-lucide', p.type === 'password' ? 'eye' : 'eye-off');
+          lucide.createIcons();
+        });
+        document.getElementById('loginForm')?.addEventListener('submit', (e) => this.login(e));
+
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) await this.verifyUser(session.user);
+        } catch (e) { console.warn(e); }
+      },
+
+      async login(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const btn = document.getElementById('loginBtn');
+        const errBox = document.getElementById('login-error');
+
+        errBox.classList.add('hidden');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin mr-1.5">&#9696;</span> Signing in...`;
+
+        try {
+          console.log("Signing in:", email);
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          console.log("Login success:", data);
+          await this.verifyUser(data.user);
+        } catch (err) {
+          console.error("Login failure:", err);
+          const msg = err.message || "Invalid credentials.";
+          this.toast(msg, 'error');
+          document.getElementById('login-error-text').innerText = msg;
+          errBox.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = `<span>Sign In to Dashboard</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+          lucide.createIcons();
+        }
+      },
+
+      async verifyUser(user) {
+        console.log("Verifying profile for:", user.id);
+        let profile = null;
+        try {
+          const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+          profile = data;
+        } catch(e) {}
+
+        if (profile?.role && profile.role !== 'master_admin') {
+          await supabase.auth.signOut();
+          const err = `Access Denied: Master Admin role required. Your role: '${profile.role}'`;
+          this.toast(err, 'error');
+          document.getElementById('login-error-text').innerText = err;
+          document.getElementById('login-error').classList.remove('hidden');
+          return;
+        }
+
+        this.user = user;
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard-app').classList.remove('hidden');
+        this.setTab('home');
+        this.toast("Signed in as Master Admin!", 'success');
+        await this.syncAll();
+      },
+
+      async logout() {
+        try { await supabase.auth.signOut(); } catch(e) {}
+        this.user = null;
+        document.getElementById('dashboard-app').classList.add('hidden');
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtn').innerHTML = `<span>Sign In to Dashboard</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+        this.toast("Signed out successfully.");
+      },
+
+      setTab(tab) {
+        ['home', 'retailers', 'devices', 'payments', 'reports'].forEach(t => {
+          document.getElementById(`tab-${t}`)?.classList.toggle('hidden', t !== tab);
+        });
+        document.querySelectorAll('.nav-tab').forEach(b => {
+          const m = b.getAttribute('data-tab') === tab;
+          b.className = `nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold ${m ? 'bg-brand text-white' : 'text-textSec hover:text-white'}`;
+        });
+        document.querySelectorAll('.mob-tab').forEach(b => {
+          const m = b.getAttribute('data-tab') === tab;
+          b.className = `mob-tab flex flex-col items-center gap-0.5 text-[10px] font-semibold ${m ? 'text-brand' : 'text-textSec'}`;
+        });
+        lucide.createIcons();
+        if (tab === 'home') setTimeout(() => this.drawHomeCharts(), 50);
+        if (tab === 'reports') setTimeout(() => this.drawReportCharts(), 50);
+      },
+
+      async syncAll(manual = false) {
+        if (manual) this.toast("Refreshing data from Supabase...");
+        try {
+          const [b, d, p, e] = await Promise.allSettled([
+            supabase.from('businesses').select('*').order('created_at', { ascending: false }),
+            supabase.from('devices').select('*').order('created_at', { ascending: false }),
+            supabase.from('payments').select('*').order('created_at', { ascending: false }),
+            supabase.from('emi_plans').select('*')
+          ]);
+          this.businesses = b.status === 'fulfilled' && !b.value.error ? b.value.data || [] : [];
+          this.devices = d.status === 'fulfilled' && !d.value.error ? d.value.data || [] : [];
+          this.payments = p.status === 'fulfilled' && !p.value.error ? p.value.data || [] : [];
+          this.emiPlans = e.status === 'fulfilled' && !e.value.error ? e.value.data || [] : [];
+
+          this.updateStats();
+          this.renderRetailers();
+          this.renderDevices();
+          this.renderPayments();
+          this.renderRecent();
+          this.drawHomeCharts();
+          if (manual) this.toast("Data synchronized!", 'success');
+        } catch(err) {
+          console.error(err);
+          this.toast("Error syncing: " + err.message, 'error');
+        }
+      },
+
+      updateStats() {
+        document.getElementById('stat-retailers').innerText = this.businesses.length;
+        const activeDev = this.devices.filter(d => d.enrollment_status === 'active' || (!d.is_locked && d.status !== 'locked')).length;
+        document.getElementById('stat-devices').innerText = activeDev;
+        const rev = this.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+        document.getElementById('stat-revenue').innerText = "PKR " + rev.toLocaleString();
+        const overdue = this.emiPlans.filter(e => e.status === 'defaulted' || e.status === 'overdue').length ||
+          this.devices.filter(d => d.is_locked || d.status === 'locked').length;
+        document.getElementById('stat-overdue').innerText = overdue;
+      },
+
+      renderRecent() {
+        const c = document.getElementById('recent-retailers');
+        if (!this.businesses.length) { c.innerHTML = '<p class="text-xs text-textSec text-center py-4">No retailers registered yet.</p>'; return; }
+        c.innerHTML = this.businesses.slice(0, 5).map(b => `
+          <div class="p-3 bg-[#181822] rounded-xl border border-borderDark flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#ff6b35] to-[#22c55e] flex items-center justify-center font-bold text-white text-[11px]">${(b.name||'SP').slice(0,2).toUpperCase()}</div>
+              <div><p class="font-bold text-white">${b.name || 'Unnamed'}</p><p class="text-[11px] text-textSec">${b.owner_name || 'Owner'} &bull; ${b.city || 'Pakistan'}</p></div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${b.is_active !== false ? 'bg-statusSuccess/15 text-statusSuccess' : 'bg-statusDanger/15 text-statusDanger'}">${b.is_active !== false ? 'Active' : 'Suspended'}</span>
+          </div>
+        `).join('');
+      },
+
+      renderRetailers(list = this.businesses) {
+        const tbody = document.getElementById('ret-tbody');
+        if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-textSec">No retailers found.</td></tr>'; return; }
+        tbody.innerHTML = list.map(b => `
+          <tr class="hover:bg-[#181822]/60">
+            <td class="p-3.5 font-semibold text-white">${b.name || '—'}</td>
+            <td class="p-3.5 text-gray-300">${b.owner_name || '—'}</td>
+            <td class="p-3.5 text-gray-300">${b.city || '—'}</td>
+            <td class="p-3.5 text-textSec font-mono">${b.phone || b.email || '—'}</td>
+            <td class="p-3.5 font-mono text-brand text-[11px]">${b.license_key || '<button onclick="app.genAssignKey(\''+b.id+'\')" class="underline">Generate</button>'}</td>
+            <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${b.is_active !== false ? 'bg-statusSuccess/15 text-statusSuccess' : 'bg-statusDanger/15 text-statusDanger'}">${b.is_active !== false ? 'Active' : 'Suspended'}</span></td>
+            <td class="p-3.5 text-right space-x-1">
+              <button onclick="app.toggleRetailer('${b.id}', ${b.is_active !== false})" class="px-2 py-1 text-[11px] rounded border ${b.is_active !== false ? 'border-statusDanger/40 text-statusDanger' : 'border-statusSuccess/40 text-statusSuccess'}">${b.is_active !== false ? 'Suspend' : 'Activate'}</button>
+              <button onclick="app.genAssignKey('${b.id}')" class="p-1 text-textSec hover:text-brand"><i data-lucide="key" class="w-3.5 h-3.5 inline"></i></button>
+            </td>
+          </tr>
+        `).join('');
+        lucide.createIcons();
+      },
+
+      filterRetailers() {
+        const q = (document.getElementById('search-ret').value || '').toLowerCase();
+        this.renderRetailers(this.businesses.filter(b => (b.name||'').toLowerCase().includes(q) || (b.city||'').toLowerCase().includes(q) || (b.owner_name||'').toLowerCase().includes(q)));
+      },
+
+      renderDevices(list = this.devices) {
+        const tbody = document.getElementById('dev-tbody');
+        if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-textSec">No devices found.</td></tr>'; return; }
+        const bMap = {}; this.businesses.forEach(b => bMap[b.id] = b.name);
+        tbody.innerHTML = list.map(d => {
+          const l = !!d.is_locked || d.status === 'locked';
+          return `
+            <tr class="hover:bg-[#181822]/60">
+              <td class="p-3.5 font-mono font-bold text-white">${d.imei || '359482103849102'}</td>
+              <td class="p-3.5 text-gray-200">${d.brand || 'Samsung'} ${d.model || 'A14'}</td>
+              <td class="p-3.5 text-gray-300">${d.customer_name || bMap[d.business_id] || 'Franchise'}</td>
+              <td class="p-3.5"><div class="w-24 bg-[#1a1a1a] rounded-full h-1.5 overflow-hidden"><div class="h-full ${l ? 'bg-statusDanger' : 'bg-brand'}" style="width:${d.emi_progress || (l?30:75)}%"></div></div></td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${l ? 'bg-statusDanger/15 text-statusDanger' : 'bg-statusSuccess/15 text-statusSuccess'}">${l ? 'Locked' : 'Active'}</span></td>
+              <td class="p-3.5 text-right"><button onclick="app.openCmd('${d.id}', '${l ? 'UNLOCK' : 'LOCK'}')" class="px-2.5 py-1 text-xs font-bold rounded border ${l ? 'border-statusSuccess/40 text-statusSuccess' : 'border-statusDanger/40 text-statusDanger'}">${l ? 'Unlock' : 'Lock'}</button></td>
+            </tr>
+          `;
+        }).join('');
+        lucide.createIcons();
+      },
+
+      filterDevices() {
+        const q = (document.getElementById('search-dev').value || '').toLowerCase();
+        const s = document.getElementById('filter-dev').value;
+        this.renderDevices(this.devices.filter(d => {
+          const mQ = (d.imei||'').toLowerCase().includes(q) || (d.model||'').toLowerCase().includes(q);
+          const l = !!d.is_locked || d.status === 'locked';
+          return mQ && (s === 'all' ? true : s === 'locked' ? l : !l);
+        }));
+      },
+
+      renderPayments() {
+        const tbody = document.getElementById('pay-tbody');
+        if (!this.payments.length) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-textSec">No payments recorded.</td></tr>'; return; }
+        const bMap = {}; this.businesses.forEach(b => bMap[b.id] = b.name);
+        tbody.innerHTML = this.payments.map(p => `
+          <tr class="hover:bg-[#181822]/60">
+            <td class="p-3.5 font-mono text-textSec text-[11px]">#${String(p.id).slice(0,8)}</td>
+            <td class="p-3.5 text-gray-300">${p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</td>
+            <td class="p-3.5 font-semibold text-white">${bMap[p.business_id] || p.customer_name || 'Retail'}</td>
+            <td class="p-3.5 font-bold font-mono text-statusSuccess">PKR ${Number(p.amount||0).toLocaleString()}</td>
+            <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-[#1f1f2e] text-[10px]">${p.payment_method || 'Cash'}</span></td>
+            <td class="p-3.5 text-textSec text-[11px]">${p.notes || '—'}</td>
+          </tr>
+        `).join('');
+      },
+
+      generateKey() {
+        return `SP-PK-${Math.random().toString(36).substring(2,7).toUpperCase()}-${Math.random().toString(36).substring(2,5).toUpperCase()}-2026`;
+      },
+
+      async genAssignKey(id) {
+        const key = this.generateKey();
+        try {
+          const { error } = await supabase.from('businesses').update({ license_key: key }).eq('id', id);
+          if (error) throw error;
+          const b = this.businesses.find(x => String(x.id) === String(id));
+          if (b) b.license_key = key;
+          this.renderRetailers();
+          navigator.clipboard?.writeText(key);
+          this.toast(`Key assigned & copied: ${key}`, 'success');
+        } catch(err) { this.toast("Error: " + err.message, 'error'); }
+      },
+
+      async toggleRetailer(id, currentActive) {
+        const next = !currentActive;
+        try {
+          const { error } = await supabase.from('businesses').update({ is_active: next }).eq('id', id);
+          if (error) throw error;
+          const b = this.businesses.find(x => String(x.id) === String(id));
+          if (b) b.is_active = next;
+          this.renderRetailers();
+          this.renderRecent();
+          this.toast(`Retailer ${next ? 'Activated' : 'Suspended'}`, 'success');
+        } catch(err) { this.toast("Error: " + err.message, 'error'); }
+      },
+
+      async saveRetailer(e) {
+        e.preventDefault();
+        const id = document.getElementById('ret-id').value;
+        const name = document.getElementById('ret-name').value.trim();
+        const owner_name = document.getElementById('ret-owner').value.trim();
+        const city = document.getElementById('ret-city').value.trim();
+        const phone = document.getElementById('ret-phone').value.trim();
+        const email = document.getElementById('ret-email').value.trim();
+        const license_key = document.getElementById('ret-key').value.trim() || this.generateKey();
+
+        try {
+          if (id) {
+            await supabase.from('businesses').update({ name, owner_name, city, phone, email, license_key }).eq('id', id);
+          } else {
+            await supabase.from('businesses').insert([{ name, owner_name, city, phone, email, license_key, is_active: true }]);
+          }
+          this.closeModal('retailerModal');
+          this.toast("Retailer saved successfully!", 'success');
+          await this.syncAll();
+        } catch(err) { this.toast("Database Error: " + err.message, 'error'); }
+      },
+
+      openCmd(id, act) {
+        const d = this.devices.find(x => String(x.id) === String(id));
+        if (!d) return;
+        this.selectedDev = d; this.selectedAct = act;
+        document.getElementById('cmd-imei').innerText = d.imei || 'N/A';
+        const b = document.getElementById('cmd-action');
+        b.innerText = act;
+        b.className = `font-bold uppercase ${act === 'LOCK' ? 'text-statusDanger' : 'text-statusSuccess'}`;
+        const cBtn = document.getElementById('cmdConfirmBtn');
+        cBtn.className = `px-4 py-1.5 text-white font-bold rounded-xl shadow ${act === 'LOCK' ? 'bg-statusDanger' : 'bg-statusSuccess'}`;
+        this.openModal('cmdModal');
+      },
+
+      async confirmCommand() {
+        if (!this.selectedDev || !this.selectedAct) return;
+        const d = this.selectedDev; const act = this.selectedAct;
+        try {
+          await supabase.from('device_commands').insert([{
+            device_id: d.id, business_id: d.business_id, command_type: act, status: 'pending',
+            payload: { action: act, imei: d.imei, timestamp: new Date().toISOString() }, issued_by: this.user?.id
+          }]);
+          const locked = act === 'LOCK';
+          await supabase.from('devices').update({ is_locked: locked, status: locked ? 'locked' : 'active' }).eq('id', d.id);
+          d.is_locked = locked; d.status = locked ? 'locked' : 'active';
+          this.closeModal('cmdModal');
+          this.updateStats();
+          this.renderDevices();
+          this.toast(`Command ${act} transmitted to IMEI ${d.imei}!`, 'success');
+        } catch(err) { this.toast("Command failed: " + err.message, 'error'); }
+      },
+
+      async savePayment(e) {
+        e.preventDefault();
+        const business_id = document.getElementById('pay-business').value || null;
+        const amount = Number(document.getElementById('pay-amt').value);
+        const payment_method = document.getElementById('pay-meth').value;
+        const notes = document.getElementById('pay-note').value.trim();
+        try {
+          await supabase.from('payments').insert([{ business_id, amount, payment_method, notes, created_at: new Date().toISOString() }]);
+          this.closeModal('paymentModal');
+          this.toast(`Payment PKR ${amount.toLocaleString()} recorded!`, 'success');
+          await this.syncAll();
+        } catch(err) { this.toast("Error recording payment: " + err.message, 'error'); }
+      },
+
+      openModal(id) {
+        if (id === 'paymentModal') {
+          const s = document.getElementById('pay-business');
+          s.innerHTML = '<option value="">-- Choose Retailer --</option>' + this.businesses.map(b => `<option value="${b.id}">${b.name} (${b.city||'PK'})</option>`).join('');
+        }
+        document.getElementById(id)?.classList.remove('hidden');
+        lucide.createIcons();
+      },
+      closeModal(id) { document.getElementById(id)?.classList.add('hidden'); },
+
+      exportCSV() {
+        if (!this.payments.length) { this.toast("No payments to export.", 'error'); return; }
+        const csv = "data:text/csv;charset=utf-8,ID,Date,Amount,Method,Notes\n" +
+          this.payments.map(p => `${p.id},${p.created_at||''},${p.amount||0},${p.payment_method||''},"${(p.notes||'').replace(/"/g,'""')}"`).join("\n");
+        const a = document.createElement('a'); a.href = encodeURI(csv);
+        a.download = `secure_plug_payments_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        this.toast("Payments CSV downloaded!", 'success');
+      },
+
+      toast(msg, type = 'info') {
+        const el = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        const text = document.getElementById('toast-msg');
+        if (!el) return;
+        el.className = `fixed top-5 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border ${
+          type === 'success' ? 'bg-statusSuccess text-white border-emerald-400' :
+          type === 'error' ? 'bg-statusDanger text-white border-rose-400' : 'bg-cardDark text-white border-borderDark'
+        }`;
+        icon.innerHTML = `<i data-lucide="${type==='success'?'check-circle':type==='error'?'alert-triangle':'info'}" class="w-4 h-4"></i>`;
+        text.innerText = msg;
+        lucide.createIcons();
+        el.classList.remove('opacity-0', '-translate-y-6', 'pointer-events-none');
+        clearTimeout(this._toastT);
+        this._toastT = setTimeout(() => el.classList.add('opacity-0', '-translate-y-6', 'pointer-events-none'), 4000);
+      },
+
+      drawHomeCharts() {
+        const c1 = document.getElementById('collectionsChart');
+        const c2 = document.getElementById('statusChart');
+        if (!c1 || !c2) return;
+        if (this.charts.coll) this.charts.coll.destroy();
+        if (this.charts.stat) this.charts.stat.destroy();
+
+        const rev = this.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+        this.charts.coll = new Chart(c1, {
+          type: 'line',
+          data: {
+            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            datasets: [{ label: 'Collections (PKR)', data: [150000, 220000, 310000, 480000, 620000, Math.max(rev, 750000)], borderColor: '#ff6b35', backgroundColor: 'rgba(255,107,53,0.12)', fill: true, tension: 0.35 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0b0' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0b0' } } } }
+        });
+
+        const locked = this.devices.filter(d => d.is_locked || d.status === 'locked').length;
+        const total = this.devices.length || 15;
+        this.charts.stat = new Chart(c2, {
+          type: 'doughnut',
+          data: { labels: ['Active', 'Locked', 'Overdue'], datasets: [{ data: [Math.max(total - locked, 1), locked || 2, 2], backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'], borderWidth: 0 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#a0a0b0', boxWidth: 10, font: { size: 10 } } } } }
+        });
+      },
+
+      drawReportCharts() {
+        const c1 = document.getElementById('cityChart');
+        const c2 = document.getElementById('targetChart');
+        if (!c1 || !c2) return;
+        if (this.charts.city) this.charts.city.destroy();
+        if (this.charts.target) this.charts.target.destroy();
+
+        const cityMap = {}; this.businesses.forEach(b => { const c = b.city || 'Other'; cityMap[c] = (cityMap[c] || 0) + 1; });
+        const labels = Object.keys(cityMap).length ? Object.keys(cityMap) : ['Lahore', 'Karachi', 'Rawalpindi', 'Multan'];
+        const values = Object.keys(cityMap).length ? Object.values(cityMap) : [14, 11, 7, 5];
+
+        this.charts.city = new Chart(c1, {
+          type: 'bar',
+          data: { labels, datasets: [{ data: values, backgroundColor: '#ff6b35', borderRadius: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#a0a0b0' } }, y: { ticks: { color: '#a0a0b0' } } } }
+        });
+
+        this.charts.target = new Chart(c2, {
+          type: 'line',
+          data: {
+            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            datasets: [
+              { label: 'Collected', data: [150000, 220000, 310000, 480000, 620000, 750000], borderColor: '#22c55e', tension: 0.3 },
+              { label: 'Target', data: [160000, 230000, 300000, 450000, 600000, 700000], borderColor: '#a0a0b0', borderDash: [4, 4], tension: 0.3 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#a0a0b0', boxWidth: 10 } } }, scales: { x: { ticks: { color: '#a0a0b0' } }, y: { ticks: { color: '#a0a0b0' } } } }
+        });
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
