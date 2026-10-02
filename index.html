@@ -30,60 +30,73 @@
   </style>
 </head>
 <body class="bg-dark-bg text-gray-100 min-h-screen flex flex-col antialiased">
-  <div id="toast" class="fixed top-4 right-4 z-50 transition-all duration-300 -translate-y-24 opacity-0 bg-dark-card border border-dark-border px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+  <div id="toast" class="fixed top-4 right-4 z-50 transition-all duration-300 -translate-y-24 opacity-0 bg-dark-card border border-dark-border px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-md">
     <div id="toast-icon"></div>
-    <div id="toast-msg" class="text-sm font-medium"></div>
+    <div id="toast-msg" class="text-xs font-medium leading-relaxed"></div>
   </div>
 
   <!-- AUTH VIEW -->
   <div id="auth-view" class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-dark-card border border-dark-border rounded-2xl p-8 shadow-2xl">
-      <div class="flex items-center justify-center gap-3 mb-6">
-        <div class="w-12 h-12 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
-          <i data-lucide="shield-check" class="w-7 h-7"></i>
+    <div class="w-full max-w-md bg-dark-card border border-dark-border rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 bg-gradient-to-tr from-brand to-accent rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-brand/20">
+          <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
         </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight text-white">Secure Plug</h1>
-          <p class="text-xs text-dark-muted font-medium">Master Admin Portal &bull; Pakistan</p>
+        <h1 class="text-2xl font-bold tracking-tight text-white">Secure Plug Admin</h1>
+        <p class="text-xs text-dark-muted mt-1">Device EMI Management &bull; Pakistan</p>
+        <span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[11px] font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span> Supabase Connected
+        </span>
+      </div>
+
+      <!-- Prominent Visible Error Box -->
+      <div id="auth-error" class="hidden mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs space-y-1.5">
+        <div class="flex items-start gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+          <div id="auth-error-text" class="font-medium leading-snug"></div>
         </div>
+        <div id="auth-error-hint" class="hidden text-[11px] text-gray-300 pl-6 pt-1.5 border-t border-rose-500/20"></div>
       </div>
-      <div class="p-3 bg-brand/5 border border-brand/20 rounded-xl mb-6 text-xs text-gray-300 flex items-center gap-2">
-        <i data-lucide="database" class="w-4 h-4 text-brand shrink-0"></i>
-        <span>Connected to Live Supabase Backend</span>
-      </div>
-      <div id="auth-error" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs"></div>
-      <form onsubmit="app.handleLogin(event)" class="space-y-4">
+
+      <!-- Login Form with no-reload protection -->
+      <form id="login-form" onsubmit="event.preventDefault(); return app.handleLogin(event);" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-dark-muted mb-1.5 uppercase tracking-wider">Email Address</label>
+          <label class="block text-xs font-semibold text-dark-muted uppercase mb-1">Master Admin Email</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-3 text-dark-muted"></i>
-            <input type="email" id="login-email" required placeholder="admin@secureplug.pk" class="w-full bg-dark-input border border-dark-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand">
+            <input id="login-email" type="email" required placeholder="ladla123457ali@gmail.com" value="ladla123457ali@gmail.com" class="w-full pl-9 pr-3.5 py-2.5 bg-dark-input border border-dark-border rounded-xl text-sm text-white focus:outline-none focus:border-brand">
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-dark-muted mb-1.5 uppercase tracking-wider">Password</label>
+          <label class="block text-xs font-semibold text-dark-muted uppercase mb-1">Password</label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-dark-muted"></i>
-            <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-dark-input border border-dark-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand">
+            <input id="login-password" type="password" required placeholder="••••••••" class="w-full pl-9 pr-3.5 py-2.5 bg-dark-input border border-dark-border rounded-xl text-sm text-white focus:outline-none focus:border-brand">
           </div>
         </div>
-        <button type="submit" id="login-btn" class="w-full bg-brand hover:bg-brand-hover text-white font-semibold py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-sm shadow-lg shadow-brand/20">
+        <button id="login-btn" type="button" onclick="app.handleLogin(event)" class="w-full py-3 bg-brand hover:bg-brand-hover text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-brand/20">
           <span>Sign In</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </form>
-      <div class="mt-6 pt-4 border-t border-dark-border text-center">
-        <p class="text-[11px] text-dark-muted">Requires an authenticated account with <code class="text-brand font-mono">role = 'master_admin'</code> in profiles table.</p>
+
+      <div class="mt-6 pt-4 border-t border-dark-border text-center space-y-1.5">
+        <p class="text-[11px] text-dark-muted flex items-center justify-center gap-1">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-accent"></i> Authorized for <code class="text-brand font-mono">profiles.role = 'master_admin'</code>
+        </p>
+        <p class="text-[10px] text-gray-400">
+          Tip: Magic links from Supabase Dashboard will automatically sign in here.
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- MAIN APP VIEW -->
+  <!-- DASHBOARD APP VIEW -->
   <div id="app-view" class="hidden min-h-screen flex flex-col md:flex-row">
     <!-- Desktop Sidebar -->
     <aside class="hidden md:flex flex-col w-64 bg-dark-card border-r border-dark-border p-4 shrink-0">
       <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-dark-border">
-        <div class="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+        <div class="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand font-bold">
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <div>
@@ -117,9 +130,9 @@
         <div class="px-2 py-2 flex items-center justify-between mb-2">
           <div class="overflow-hidden">
             <p id="user-display" class="text-xs font-medium text-white truncate"></p>
-            <p class="text-[10px] text-accent">Role: master_admin</p>
+            <p id="user-role-display" class="text-[10px] text-accent">Role: master_admin</p>
           </div>
-          <button onclick="app.handleLogout()" class="p-2 text-dark-muted hover:text-rose-400 rounded-lg">
+          <button onclick="app.handleLogout()" title="Sign Out" class="p-2 text-dark-muted hover:text-rose-400 rounded-lg">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
@@ -338,7 +351,7 @@
         <div id="tab-settings" class="hidden space-y-6">
           <div>
             <h2 class="text-lg font-bold text-white">System Configuration</h2>
-            <p class="text-xs text-dark-muted">Supabase live connection details</p>
+            <p class="text-xs text-dark-muted">Supabase live connection details &amp; diagnostic tools</p>
           </div>
           <div class="bg-dark-card border border-dark-border rounded-2xl p-5 space-y-4">
             <h3 class="text-sm font-semibold text-white">Active Supabase Instance</h3>
@@ -354,9 +367,9 @@
                 </span>
               </div>
             </div>
-            <div>
+            <div class="pt-2">
               <button onclick="app.testSupabaseConnection()" class="px-4 py-2 bg-dark-input hover:bg-dark-cardHover border border-dark-border text-white text-xs font-semibold rounded-xl flex items-center gap-2">
-                <i data-lucide="activity" class="w-4 h-4 text-brand"></i> Run Live Connectivity Test
+                <i data-lucide="activity" class="w-4 h-4 text-brand"></i> Run Live Connectivity &amp; RLS Test
               </button>
               <div id="conn-test-result" class="mt-3 text-xs space-y-1 font-mono hidden p-3 bg-dark-input rounded-xl border border-dark-border"></div>
             </div>
@@ -468,7 +481,16 @@
   <script>
     const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    console.log('[Supabase] Initializing client with options: persistSession=true, autoRefreshToken=true, detectSessionInUrl=true');
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage
+      }
+    });
 
     const app = {
       currentUser: null,
@@ -484,16 +506,52 @@
       devChart: null,
 
       async init() {
+        console.log('[App] Initializing Secure Plug Admin...');
         lucide.createIcons();
+
+        // Listen to Auth State Changes (handles magic links, password logins, tokens from URL)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('[Auth] onAuthStateChange:', event, session?.user?.email);
+          if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session?.user) {
+            if (!this.currentUser) {
+              console.log('[Auth] Detected signed-in user session, verifying profile...');
+              await this.verifyAndLoadUser(session.user);
+            }
+          } else if (event === 'SIGNED_OUT') {
+            console.log('[Auth] User signed out');
+            this.currentUser = null;
+            this.currentProfile = null;
+            this.showAuthView();
+          }
+        });
+
+        // Check current session
         try {
-          const { data: { session } } = await supabase.auth.getSession();
+          console.log('[Auth] Checking existing session via supabase.auth.getSession()...');
+          const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+          if (sessionErr) console.warn('[Auth] getSession warning:', sessionErr);
+
           if (session?.user) {
+            console.log('[Auth] Active session found for user:', session.user.email);
             await this.verifyAndLoadUser(session.user);
           } else {
+            console.log('[Auth] No active session found. Showing login form.');
             this.showAuthView();
           }
         } catch (e) {
+          console.error('[Auth] Error in init session check:', e);
           this.showAuthView();
+        }
+
+        // Attach form submit prevention
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+          loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.handleLogin(e);
+            return false;
+          });
         }
       },
 
@@ -511,75 +569,186 @@
       },
 
       async handleLogin(e) {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
+        if (e && e.preventDefault) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
         const btn = document.getElementById('login-btn');
         const errBox = document.getElementById('auth-error');
+        const errText = document.getElementById('auth-error-text');
+        const errHint = document.getElementById('auth-error-hint');
 
-        errBox.classList.add('hidden');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="inline-block animate-spin mr-2">&#9696;</span> Signing in...';
+        console.log('[Auth] Attempting login with email:', email);
+
+        if (!email || !password) {
+          this.showLoginError('Please enter both email and password.');
+          return false;
+        }
+
+        if (errBox) errBox.classList.add('hidden');
+        if (errHint) errHint.classList.add('hidden');
+
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class="inline-block animate-spin mr-2">&#9696;</span> Signing in...';
+        }
 
         try {
-          // Supabase Auth Login
+          console.log('[Auth] Calling supabase.auth.signInWithPassword...');
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          if (!data?.user) throw new Error('No user profile returned');
+
+          console.log('[Auth] signInWithPassword response:', { data, error });
+
+          if (error) {
+            throw error;
+          }
+
+          if (!data?.user) {
+            throw new Error('No user returned from Supabase Auth');
+          }
+
+          console.log('[Auth] Sign-in successful for user ID:', data.user.id);
+          this.showToast('Authentication successful. Verifying profile...', 'info');
           await this.verifyAndLoadUser(data.user);
+
         } catch (err) {
-          errBox.innerText = err.message || 'Login failed';
-          errBox.classList.remove('hidden');
-          btn.disabled = false;
-          btn.innerHTML = '<span>Sign In</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
-          lucide.createIcons();
+          console.error('[Auth] Login error details:', err);
+          const rawMsg = err.message || (typeof err === 'string' ? err : 'Login failed');
+          let displayMsg = rawMsg;
+          let hintMsg = '';
+
+          if (rawMsg.toLowerCase().includes('invalid login credentials')) {
+            displayMsg = 'Invalid email or password.';
+            hintMsg = 'Important: If this password was set directly in the Supabase SQL editor using an UPDATE statement, it must be encrypted with bcrypt: <code>UPDATE auth.users SET encrypted_password = crypt(\'your_password\', gen_salt(\'bf\')) WHERE email = \'' + email + '\';</code> Or set a password via Supabase Dashboard -> Authentication -> Users.';
+          } else if (rawMsg.toLowerCase().includes('email not confirmed')) {
+            displayMsg = 'Email address not confirmed in Supabase Auth.';
+            hintMsg = 'Confirm user in Supabase Dashboard -> Authentication -> Users.';
+          }
+
+          this.showLoginError(displayMsg, hintMsg);
+          this.showToast('Login Failed: ' + displayMsg, 'error');
+
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Sign In</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+            lucide.createIcons();
+          }
         }
+
+        return false;
+      },
+
+      showLoginError(msg, hint = '') {
+        const errBox = document.getElementById('auth-error');
+        const errText = document.getElementById('auth-error-text');
+        const errHint = document.getElementById('auth-error-hint');
+
+        if (errText) errText.innerText = msg;
+        if (errHint) {
+          if (hint) {
+            errHint.innerHTML = hint;
+            errHint.classList.remove('hidden');
+          } else {
+            errHint.classList.add('hidden');
+          }
+        }
+        if (errBox) errBox.classList.remove('hidden');
+        lucide.createIcons();
       },
 
       // Role check: profiles table where role='master_admin'
       async verifyAndLoadUser(user) {
-        const btn = document.getElementById('login-btn');
+        console.log('[Auth] Verifying master_admin role in profiles table for user:', user.id, user.email);
         const errBox = document.getElementById('auth-error');
+
         try {
-          const { data: profile } = await supabase
+          // Check profile by user.id
+          let { data: profile, error: profileErr } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
             .maybeSingle();
 
-          if (profile?.role !== 'master_admin') {
-            await supabase.auth.signOut();
-            throw new Error(`Access Denied: Only profiles with role='master_admin' allowed. Found: "${profile?.role || 'none'}"`);
+          console.log('[Auth] Profile query result by ID:', { profile, profileErr });
+
+          // If not found by ID or RLS error, try query by email
+          if ((!profile || profileErr) && user.email) {
+            console.log('[Auth] Trying profile lookup by email:', user.email);
+            const { data: pEmail, error: pEmailErr } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('email', user.email)
+              .maybeSingle();
+
+            if (pEmail) {
+              profile = pEmail;
+              profileErr = null;
+            } else if (pEmailErr) {
+              console.warn('[Auth] Profile query by email warning:', pEmailErr);
+            }
           }
 
+          if (profileErr) {
+            console.error('[Auth] Profiles table RLS / Query error:', profileErr);
+            throw new Error(`Profiles table error: ${profileErr.message} (Code: ${profileErr.code || 'RLS'}). Ensure profiles table has a SELECT policy for authenticated users: CREATE POLICY "allow_read_profiles" ON profiles FOR SELECT TO authenticated USING (true);`);
+          }
+
+          if (!profile) {
+            console.error('[Auth] No profile found in profiles table for user id:', user.id);
+            throw new Error(`Access Denied: No profile row found in 'profiles' table for user ID ${user.id} (${user.email}). Please add a profile with role='master_admin'.`);
+          }
+
+          console.log('[Auth] Profile retrieved:', profile);
+          if (profile.role !== 'master_admin') {
+            console.error('[Auth] Profile role mismatch. Expected master_admin, found:', profile.role);
+            await supabase.auth.signOut();
+            throw new Error(`Access Denied: Master Admin privileges required. Your profile has role='${profile.role || 'none'}'.`);
+          }
+
+          console.log('[Auth] Access granted! User is verified master_admin.');
           this.currentUser = user;
           this.currentProfile = profile;
-          document.getElementById('user-display').innerText = user.email;
+
+          const userDisplay = document.getElementById('user-display');
+          if (userDisplay) userDisplay.innerText = user.email || 'Admin';
+
+          const roleDisplay = document.getElementById('user-role-display');
+          if (roleDisplay) roleDisplay.innerText = `Role: ${profile.role}`;
+
           this.showAppView();
           await this.loadAllData();
-          this.showToast('Logged in as Master Admin', 'success');
+          this.showToast(`Welcome back, Master Admin!`, 'success');
+
         } catch (err) {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<span>Sign In</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
-          }
-          if (errBox) {
-            errBox.innerText = err.message;
-            errBox.classList.remove('hidden');
-          }
+          console.error('[Auth] verifyAndLoadUser failed:', err);
+          this.showLoginError(err.message);
+          this.showToast(err.message, 'error');
           this.showAuthView();
           lucide.createIcons();
         }
       },
 
       async handleLogout() {
-        try { await supabase.auth.signOut(); } catch (e) {}
+        console.log('[Auth] Signing out...');
+        try {
+          await supabase.auth.signOut();
+        } catch (e) {
+          console.warn('[Auth] Signout error:', e);
+        }
         this.currentUser = null;
-        this.showToast('Signed out');
+        this.currentProfile = null;
+        this.showToast('Signed out of session');
         this.showAuthView();
       },
 
       async loadAllData() {
+        console.log('[Data] Loading all tables from Supabase...');
         try {
           await Promise.all([
             this.loadBusinesses(),
@@ -594,7 +763,9 @@
           this.renderCommandsList();
           this.renderCharts();
           lucide.createIcons();
+          console.log('[Data] All data loaded successfully.');
         } catch (err) {
+          console.error('[Data] Error loading data:', err);
           this.showToast('Error loading Supabase: ' + err.message, 'error');
         }
       },
@@ -606,27 +777,46 @@
 
       // Load Retailers from businesses table
       async loadBusinesses() {
+        console.log('[Data] Fetching businesses...');
         const { data, error } = await supabase.from('businesses').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
+        if (error) {
+          console.error('[Data] businesses query error:', error);
+          throw error;
+        }
         this.businesses = data || [];
+        console.log('[Data] Businesses count:', this.businesses.length);
       },
 
       // Load Devices from devices table
       async loadDevices() {
+        console.log('[Data] Fetching devices...');
         const { data, error } = await supabase.from('devices').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
+        if (error) {
+          console.error('[Data] devices query error:', error);
+          throw error;
+        }
         this.devices = data || [];
+        console.log('[Data] Devices count:', this.devices.length);
       },
 
       // Load Payments from payments table
       async loadPayments() {
+        console.log('[Data] Fetching payments...');
         const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
+        if (error) {
+          console.error('[Data] payments query error:', error);
+          throw error;
+        }
         this.payments = data || [];
+        console.log('[Data] Payments count:', this.payments.length);
       },
 
       async loadCommands() {
-        const { data } = await supabase.from('device_commands').select('*').order('id', { ascending: false }).limit(10);
+        console.log('[Data] Fetching device_commands...');
+        const { data, error } = await supabase.from('device_commands').select('*').order('id', { ascending: false }).limit(10);
+        if (error) {
+          console.warn('[Data] device_commands query note:', error);
+        }
         this.commands = data || [];
       },
 
@@ -637,17 +827,31 @@
         const lockedD = this.devices.filter(d => d.is_locked).length;
         const rev = this.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
-        document.getElementById('stat-retailers').innerText = totalB;
-        document.getElementById('stat-active-retailers').innerText = activeB;
-        document.getElementById('stat-devices').innerText = totalD;
-        document.getElementById('stat-locked-devices').innerText = lockedD;
-        document.getElementById('stat-unlocked-devices').innerText = totalD - lockedD;
-        document.getElementById('stat-revenue').innerText = 'PKR ' + rev.toLocaleString();
-        document.getElementById('payments-total-badge').innerText = 'PKR ' + rev.toLocaleString();
+        const elTotalB = document.getElementById('stat-retailers');
+        if (elTotalB) elTotalB.innerText = totalB;
+
+        const elActB = document.getElementById('stat-active-retailers');
+        if (elActB) elActB.innerText = activeB;
+
+        const elTotalD = document.getElementById('stat-devices');
+        if (elTotalD) elTotalD.innerText = totalD;
+
+        const elLockD = document.getElementById('stat-locked-devices');
+        if (elLockD) elLockD.innerText = lockedD;
+
+        const elUnlockD = document.getElementById('stat-unlocked-devices');
+        if (elUnlockD) elUnlockD.innerText = totalD - lockedD;
+
+        const elRev = document.getElementById('stat-revenue');
+        if (elRev) elRev.innerText = 'PKR ' + rev.toLocaleString();
+
+        const elBadge = document.getElementById('payments-total-badge');
+        if (elBadge) elBadge.innerText = 'PKR ' + rev.toLocaleString();
       },
 
       renderRetailersTable(list = this.businesses) {
         const tbody = document.getElementById('retailers-tbody');
+        if (!tbody) return;
         if (!list.length) {
           tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-dark-muted">No businesses found in businesses table.</td></tr>';
           return;
@@ -688,7 +892,7 @@
       },
 
       filterRetailers() {
-        const q = document.getElementById('retailer-search').value.toLowerCase();
+        const q = (document.getElementById('retailer-search')?.value || '').toLowerCase();
         const f = this.businesses.filter(b => 
           (b.name && b.name.toLowerCase().includes(q)) ||
           (b.city && b.city.toLowerCase().includes(q)) ||
@@ -714,14 +918,16 @@
         }
 
         const btn = document.getElementById('save-retailer-btn');
-        btn.disabled = true;
+        if (btn) btn.disabled = true;
 
         try {
           if (id) {
+            console.log('[Businesses] Updating retailer id:', id);
             const { error } = await supabase.from('businesses').update({ name, owner_name, city, phone, email, address, license_key: license_key || undefined }).eq('id', id);
             if (error) throw error;
             this.showToast('Retailer updated!', 'success');
           } else {
+            console.log('[Businesses] Inserting new retailer:', name);
             const { error } = await supabase.from('businesses').insert([{
               name, owner_name, city, phone, email, address, license_key, is_active: true
             }]);
@@ -733,9 +939,10 @@
           this.updateDashboardMetrics();
           this.renderRetailersTable();
         } catch (err) {
+          console.error('[Businesses] Save error:', err);
           this.showToast('Database Error: ' + err.message, 'error');
         } finally {
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
         }
       },
 
@@ -757,6 +964,7 @@
       // Generate License Key -> businesses.license_key
       async generateLicenseKeyForBusiness(businessId) {
         const newKey = this.generateLicenseCode();
+        console.log('[Businesses] Generating license key for business:', businessId, newKey);
         try {
           const { error } = await supabase.from('businesses').update({ license_key: newKey }).eq('id', businessId);
           if (error) throw error;
@@ -766,6 +974,7 @@
           this.copyToClipboard(newKey);
           this.showToast(`Saved license key: ${newKey}`, 'success');
         } catch (err) {
+          console.error('[Businesses] Generate key error:', err);
           this.showToast('Error: ' + err.message, 'error');
         }
       },
@@ -779,6 +988,7 @@
       // Suspend / Activate -> toggle businesses.is_active
       async toggleBusinessStatus(businessId, currentActive) {
         const next = !currentActive;
+        console.log('[Businesses] Toggling status for business:', businessId, 'to:', next);
         try {
           const { error } = await supabase.from('businesses').update({ is_active: next }).eq('id', businessId);
           if (error) throw error;
@@ -788,12 +998,14 @@
           this.renderRetailersTable();
           this.showToast(`Business ${next ? 'Activated' : 'Suspended'}`, 'success');
         } catch (err) {
+          console.error('[Businesses] Toggle status error:', err);
           this.showToast('Error: ' + err.message, 'error');
         }
       },
 
       renderDevicesTable(list = this.devices) {
         const tbody = document.getElementById('devices-tbody');
+        if (!tbody) return;
         if (!list.length) {
           tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-dark-muted">No devices found in devices table.</td></tr>';
           return;
@@ -827,8 +1039,8 @@
       },
 
       filterDevices() {
-        const q = document.getElementById('device-search').value.toLowerCase();
-        const s = document.getElementById('device-filter-status').value;
+        const q = (document.getElementById('device-search')?.value || '').toLowerCase();
+        const s = document.getElementById('device-filter-status')?.value || 'all';
         const f = this.devices.filter(d => {
           const mQ = (d.imei && d.imei.toLowerCase().includes(q)) || (d.model && d.model.toLowerCase().includes(q)) || (d.brand && d.brand.toLowerCase().includes(q));
           const mS = s === 'all' ? true : s === 'locked' ? d.is_locked : !d.is_locked;
@@ -859,9 +1071,10 @@
         const action = this.selectedCommandAction;
         const reason = document.getElementById('cmd-reason').value.trim();
         const btn = document.getElementById('cmd-submit-btn');
-        btn.disabled = true;
+        if (btn) btn.disabled = true;
 
         try {
+          console.log('[Commands] Sending command:', action, 'to device:', d.id);
           const { error } = await supabase.from('device_commands').insert([{
             device_id: d.id,
             business_id: d.business_id || null,
@@ -883,14 +1096,16 @@
           this.renderCommandsList();
           this.showToast(`Command ${action} sent to IMEI ${d.imei}!`, 'success');
         } catch (err) {
+          console.error('[Commands] Send error:', err);
           this.showToast('Command failed: ' + err.message, 'error');
         } finally {
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
         }
       },
 
       renderCommandsList() {
         const c = document.getElementById('dashboard-commands-list');
+        if (!c) return;
         if (!this.commands.length) {
           c.innerHTML = '<p class="text-dark-muted py-6 text-center">No commands logged in device_commands table.</p>';
           return;
@@ -915,6 +1130,7 @@
 
       renderPaymentsTable() {
         const tbody = document.getElementById('payments-tbody');
+        if (!tbody) return;
         if (!this.payments.length) {
           tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-dark-muted">No payments found in payments table.</td></tr>';
           return;
@@ -1025,8 +1241,9 @@
 
       async testSupabaseConnection() {
         const box = document.getElementById('conn-test-result');
+        if (!box) return;
         box.classList.remove('hidden');
-        box.innerHTML = 'Testing live tables...';
+        box.innerHTML = 'Testing live tables &amp; RLS...';
         const tests = ['businesses', 'devices', 'payments', 'profiles', 'device_commands'];
         let html = '';
         for (const tbl of tests) {
@@ -1034,7 +1251,7 @@
             const start = performance.now();
             const { count, error } = await supabase.from(tbl).select('*', { count: 'exact', head: true });
             const time = Math.round(performance.now() - start);
-            html += error ? `<div class="text-rose-400">✗ ${tbl}: ${error.message}</div>` : `<div class="text-accent">✓ ${tbl}: OK (${count ?? 0} rows, ${time}ms)</div>`;
+            html += error ? `<div class="text-rose-400">✗ ${tbl}: ${error.message} (${error.code || 'RLS error'})</div>` : `<div class="text-accent">✓ ${tbl}: OK (${count ?? 0} rows, ${time}ms)</div>`;
           } catch (e) {
             html += `<div class="text-rose-400">✗ ${tbl}: ${e.message}</div>`;
           }
@@ -1043,19 +1260,28 @@
       },
 
       copyToClipboard(text) {
-        navigator.clipboard?.writeText(text);
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text);
+        }
         this.showToast('Copied: ' + text);
       },
 
       showToast(msg, type = 'info') {
         const t = document.getElementById('toast');
         const icon = document.getElementById('toast-icon');
-        document.getElementById('toast-msg').innerText = msg;
-        icon.className = type === 'error' ? 'text-rose-400' : type === 'success' ? 'text-accent' : 'text-brand';
-        icon.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : type === 'success' ? 'check-circle-2' : 'info'}" class="w-5 h-5"></i>`;
+        const msgEl = document.getElementById('toast-msg');
+        if (!t || !msgEl) return;
+
+        msgEl.innerText = msg;
+        if (icon) {
+          icon.className = type === 'error' ? 'text-rose-400' : type === 'success' ? 'text-accent' : 'text-brand';
+          icon.innerHTML = `<i data-lucide="${type === 'error' ? 'alert-circle' : type === 'success' ? 'check-circle-2' : 'info'}" class="w-5 h-5"></i>`;
+        }
+
         t.classList.remove('-translate-y-24', 'opacity-0');
         lucide.createIcons();
-        setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3500);
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 5000);
       }
     };
 
