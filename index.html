@@ -98,7 +98,7 @@
             </button>
           </div>
         </div>
-        <button id="loginBtn" type="submit" class="w-full py-4 bg-gradient-to-r from-[#ff6b35] to-[#f95716] hover:brightness-110 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+        <button id="loginBtn" type="submit" class="w-full py-4 bg-gradient-to-r from-[#ff6b35] to-[#f95716] hover:brightness-110 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
           <span id="loginBtnText">Sign In to Dashboard</span>
           <i data-lucide="arrow-right" id="loginBtnIcon" class="w-4 h-4"></i>
         </button>
@@ -110,7 +110,7 @@
   </section>
 
   <!-- 2. DASHBOARD APP -->
-  <div id="dashboard-app" class="hidden min-h-screen flex flex-col pb-16 md:pb-0">
+  <div id="dashboard-app" class="hidden min-h-screen flex flex-col pb-16 md:pb-0" style="display: none;">
     <!-- Header -->
     <header class="sticky top-0 z-40 bg-cardDark/90 backdrop-blur-md border-b border-borderDark px-4 sm:px-6 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2.5 cursor-pointer" onclick="app.setTab('home')">
@@ -393,6 +393,42 @@
     const app = {
       user: null, businesses: [], devices: [], payments: [], emiPlans: [], charts: {}, selectedDev: null, selectedAct: null,
 
+      showDashboard() {
+        console.log("Switching to dashboard...");
+        const loginEl = document.getElementById('login-section');
+        const dashEl = document.getElementById('dashboard-app');
+        if (loginEl) {
+          loginEl.classList.add('hidden');
+          loginEl.style.display = 'none';
+        }
+        if (dashEl) {
+          dashEl.classList.remove('hidden');
+          dashEl.style.display = 'flex';
+        }
+        this.setTab('home');
+        lucide.createIcons();
+      },
+
+      showLogin() {
+        console.log("Switching to login screen...");
+        const loginEl = document.getElementById('login-section');
+        const dashEl = document.getElementById('dashboard-app');
+        if (dashEl) {
+          dashEl.classList.add('hidden');
+          dashEl.style.display = 'none';
+        }
+        if (loginEl) {
+          loginEl.classList.remove('hidden');
+          loginEl.style.display = 'flex';
+        }
+        const btn = document.getElementById('loginBtn');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span>Sign In to Dashboard</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        }
+        lucide.createIcons();
+      },
+
       async init() {
         lucide.createIcons();
         document.getElementById('togglePass')?.addEventListener('click', () => {
@@ -401,16 +437,53 @@
           document.getElementById('eyeIcon').setAttribute('data-lucide', p.type === 'password' ? 'eye' : 'eye-off');
           lucide.createIcons();
         });
-        document.getElementById('loginForm')?.addEventListener('submit', (e) => this.login(e));
 
+        const form = document.getElementById('loginForm');
+        if (form) {
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.login(e);
+            return false;
+          });
+        }
+
+        // 4. Setup onAuthStateChange listener
+        supabase.auth.onAuthStateChange((event, session) => {
+          console.log("onAuthStateChange event:", event, "session:", session);
+          if (session?.user) {
+            this.user = session.user;
+            this.showDashboard();
+            this.loadDashboard();
+          } else if (event === 'SIGNED_OUT') {
+            this.showLogin();
+          }
+        });
+
+        // 5. On page load, check if session exists
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) await this.verifyUser(session.user);
-        } catch (e) { console.warn(e); }
+          const { data: { session }, error } = await supabase.auth.getSession();
+          console.log("Page load getSession():", session);
+          if (error) console.warn("getSession error:", error);
+          if (session?.user) {
+            console.log("Active session detected, showing dashboard immediately:", session.user.email);
+            this.user = session.user;
+            this.showDashboard();
+            await this.loadDashboard();
+          } else {
+            this.showLogin();
+          }
+        } catch (e) {
+          console.warn("Session check catch:", e);
+          this.showLogin();
+        }
       },
 
       async login(e) {
-        e.preventDefault();
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value;
         const btn = document.getElementById('loginBtn');
@@ -421,11 +494,20 @@
         btn.innerHTML = `<span class="animate-spin mr-1.5">&#9696;</span> Signing in...`;
 
         try {
-          console.log("Signing in:", email);
+          console.log("Attempting sign in for:", email);
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          console.log("Login success:", data);
-          await this.verifyUser(data.user);
+
+          console.log("Login success! Session:", data.session);
+          if (data.session) {
+            this.user = data.user;
+            this.toast("Welcome back, Sikandar Ali!", "success");
+            // 1. Hide login, 2. Show dashboard, 3. Call loadDashboard
+            this.showDashboard();
+            await this.loadDashboard();
+          } else {
+            throw new Error("No active session returned from Supabase.");
+          }
         } catch (err) {
           console.error("Login failure:", err);
           const msg = err.message || "Invalid credentials.";
@@ -438,39 +520,14 @@
         }
       },
 
-      async verifyUser(user) {
-        console.log("Verifying profile for:", user.id);
-        let profile = null;
-        try {
-          const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-          profile = data;
-        } catch(e) {}
-
-        if (profile?.role && profile.role !== 'master_admin') {
-          await supabase.auth.signOut();
-          const err = `Access Denied: Master Admin role required. Your role: '${profile.role}'`;
-          this.toast(err, 'error');
-          document.getElementById('login-error-text').innerText = err;
-          document.getElementById('login-error').classList.remove('hidden');
-          return;
-        }
-
-        this.user = user;
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('dashboard-app').classList.remove('hidden');
-        this.setTab('home');
-        this.toast("Signed in as Master Admin!", 'success');
-        await this.syncAll();
-      },
-
       async logout() {
-        try { await supabase.auth.signOut(); } catch(e) {}
+        try {
+          await supabase.auth.signOut();
+        } catch(e) {
+          console.warn(e);
+        }
         this.user = null;
-        document.getElementById('dashboard-app').classList.add('hidden');
-        document.getElementById('login-section').classList.remove('hidden');
-        document.getElementById('loginBtn').disabled = false;
-        document.getElementById('loginBtn').innerHTML = `<span>Sign In to Dashboard</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        lucide.createIcons();
+        this.showLogin();
         this.toast("Signed out successfully.");
       },
 
@@ -489,6 +546,11 @@
         lucide.createIcons();
         if (tab === 'home') setTimeout(() => this.drawHomeCharts(), 50);
         if (tab === 'reports') setTimeout(() => this.drawReportCharts(), 50);
+      },
+
+      // Main function to fetch dashboard data safely
+      async loadDashboard(manual = false) {
+        return this.syncAll(manual);
       },
 
       async syncAll(manual = false) {
@@ -513,8 +575,8 @@
           this.drawHomeCharts();
           if (manual) this.toast("Data synchronized!", 'success');
         } catch(err) {
-          console.error(err);
-          this.toast("Error syncing: " + err.message, 'error');
+          console.error("Dashboard fetch error:", err);
+          this.toast("Notice: " + err.message, 'info');
         }
       },
 
