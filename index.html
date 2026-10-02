@@ -1,859 +1,1024 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Secure Plug Admin - Device EMI Management Portal</title>
-  
-  <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Plug Admin</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            bgDark: '#0a0a0f',
-            cardDark: '#13131a',
-            borderDark: '#1f1f2e',
-            primary: '#ff6b35',
-            brand: '#ff6b35',
-            success: '#22c55e',
-            danger: '#ef4444',
-            warning: '#f59e0b',
-            purple: '#8b5cf6',
-            textSec: '#94a3b8'
-          }
-        }
-      }
-    };
-  </script>
-
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Supabase JS v2, Chart.js & Lucide Icons CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      box-sizing: border-box;
+    :root {
+      --bg: #0a0a0f;
+      --card: #13131a;
+      --border: #1f1f2e;
+      --primary: #ff6b35;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
     }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      background-color: #0a0a0f;
-      color: #ffffff;
-      -webkit-tap-highlight-color: transparent;
-      overflow-x: hidden;
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: #f8fafc;
+      font-family: Inter, sans-serif;
     }
-    .glass-card {
-      background: rgba(19, 19, 26, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid #1f1f2e;
-    }
-    .glass-card-glow {
-      background: rgba(19, 19, 26, 0.9);
-      backdrop-filter: blur(16px);
-      border: 1px solid #1f1f2e;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glass-card-glow:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255, 107, 53, 0.4);
-      box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.15);
-    }
-    .shimmer {
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 100%);
-      background-size: 200% 100%;
-      animation: shimmer 1.8s infinite;
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0a0a0f;
-    }
+
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
     ::-webkit-scrollbar-thumb {
-      background: #1f1f2e;
-      border-radius: 9999px;
+      background: #292936;
+      border-radius: 99px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #ff6b35;
+
+    .app-section { min-height: 100vh; }
+    .hidden { display: none !important; }
+
+    .glass {
+      background: rgba(19, 19, 26, .82);
+      border: 1px solid rgba(255,255,255,.07);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      transition: all .3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,107,53,.35);
+      box-shadow: 0 15px 40px rgba(255,107,53,.08);
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ff6b35, #ff914d, #22c55e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .orange-gradient {
+      background: linear-gradient(135deg, #ff6b35, #f97316 45%, #8b5cf6);
+    }
+
+    .green-gradient {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .shield-gradient {
+      background: linear-gradient(135deg, #ff6b35, #8b5cf6 55%, #22c55e);
+    }
+
+    .input {
+      width: 100%;
+      background: #0d0d14;
+      border: 1px solid #292936;
+      border-radius: 12px;
+      color: #fff;
+      padding: 13px 14px;
+      outline: none;
+      transition: .25s;
+    }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255,107,53,.10);
+    }
+
+    .btn {
+      border: 0;
+      cursor: pointer;
+      transition: all .25s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6b35, #f97316);
+      color: white;
+      box-shadow: 0 8px 25px rgba(255,107,53,.2);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 12px 32px rgba(255,107,53,.35);
+    }
+
+    .btn-secondary {
+      background: #1b1b25;
+      border: 1px solid #2b2b38;
+      color: #e5e7eb;
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.3);
+      color: #fca5a5;
+    }
+
+    .btn-success {
+      background: rgba(34,197,94,.12);
+      border: 1px solid rgba(34,197,94,.3);
+      color: #86efac;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      z-index: 10000;
+      min-width: 280px;
+      max-width: 420px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #181820;
+      border: 1px solid #30303c;
+      box-shadow: 0 15px 45px rgba(0,0,0,.45);
+      transform: translateX(120%);
+      transition: transform .3s ease;
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-color: rgba(34,197,94,.4); }
+    .toast.error { border-color: rgba(239,68,68,.5); }
+
+    .particle {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,107,53,.55);
+      pointer-events: none;
+      animation: floatParticle linear infinite;
+    }
+
+    @keyframes floatParticle {
+      from { transform: translateY(110vh); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      to { transform: translateY(-20vh); opacity: 0; }
+    }
+
+    .nav-item {
+      transition: all .25s ease;
+      color: #8f8f9d;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: white;
+      background: rgba(255,107,53,.10);
+    }
+
+    .nav-item.active {
+      box-shadow: inset 3px 0 0 #ff6b35, 0 0 25px rgba(255,107,53,.06);
+    }
+
+    .bottom-nav {
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+
+    .modal-backdrop {
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal {
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .progress-track {
+      height: 7px;
+      background: #24242f;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg,#ff6b35,#8b5cf6);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      color: #777786;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 600;
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid #24242f;
+    }
+
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #1d1d27;
+      font-size: 13px;
+      color: #d4d4dc;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    @media (max-width: 768px) {
+      .desktop-nav { display: none; }
+      .main-content { padding-bottom: 90px; }
+      .chart-container { height: 240px; }
+    }
+
+    @media (min-width: 769px) {
+      .bottom-nav { display: none; }
     }
   </style>
 </head>
-<body class="min-h-screen bg-[#0a0a0f] text-slate-100 flex flex-col selection:bg-brand selection:text-white">
 
-  <!-- ========================================== -->
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <!-- ========================================== -->
-  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[200] opacity-0 -translate-y-6 transition-all duration-300 pointer-events-none flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border backdrop-blur-xl">
-    <span id="toast-icon"></span>
-    <span id="toast-msg"></span>
+<body>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <div class="flex items-start gap-3">
+      <div id="toastIcon"></div>
+      <div class="min-w-0">
+        <div id="toastTitle" class="font-semibold text-sm"></div>
+        <div id="toastMessage" class="text-xs text-gray-400 mt-1"></div>
+      </div>
+      <button onclick="hideToast()" class="text-gray-500 hover:text-white ml-auto">×</button>
+    </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- HEADER & APP TOP BAR (Hidden on Login) -->
-  <!-- ========================================== -->
-  <header id="appHeader" class="hidden sticky top-0 z-40 w-full glass-card border-b border-borderDark px-4 sm:px-6 py-3">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-      
-      <!-- Brand & Status -->
-      <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('dashboardSection')">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-orange-400 flex items-center justify-center shadow-lg shadow-brand/20">
-          <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-sm sm:text-base font-bold text-white tracking-tight">SECURE PLUG</h1>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live MDM</span>
+  <!-- =========================================================
+       LOGIN
+       ========================================================= -->
+  <div id="loginSection" class="app-section relative overflow-hidden flex items-center justify-center p-5">
+    <div class="fixed inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,107,53,.10),transparent_30%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,.07),transparent_30%)]"></div>
+
+    <div id="particles"></div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <div class="glass rounded-[20px] p-7 sm:p-9 shadow-2xl">
+        <div class="flex justify-center mb-6">
+          <div class="shield-gradient w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <i data-lucide="shield-check" class="w-9 h-9 text-white"></i>
           </div>
-          <p class="text-[11px] text-textSec">EMI Lock & Recovery Portal</p>
         </div>
-      </div>
 
-      <!-- Desktop Navigation Tabs -->
-      <nav class="hidden md:flex items-center gap-1 bg-[#13131a] p-1 rounded-xl border border-borderDark text-xs font-medium">
-        <button onclick="showSection('dashboardSection')" data-sec="dashboardSection" class="nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white flex items-center gap-1.5">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-        </button>
-        <button onclick="showSection('retailersSection')" data-sec="retailersSection" class="nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white flex items-center gap-1.5">
-          <i data-lucide="store" class="w-4 h-4"></i> Retailers
-        </button>
-        <button onclick="showSection('devicesSection')" data-sec="devicesSection" class="nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white flex items-center gap-1.5">
-          <i data-lucide="smartphone" class="w-4 h-4"></i> Devices
-        </button>
-        <button onclick="showSection('paymentsSection')" data-sec="paymentsSection" class="nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white flex items-center gap-1.5">
-          <i data-lucide="receipt" class="w-4 h-4"></i> Payments
-        </button>
-        <button onclick="showSection('reportsSection')" data-sec="reportsSection" class="nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white flex items-center gap-1.5">
-          <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Reports
-        </button>
-      </nav>
+        <div class="text-center mb-7">
+          <h1 class="text-[28px] font-extrabold">Secure Plug Admin</h1>
+          <p class="text-gray-500 mt-2">Device EMI Management Portal</p>
+        </div>
 
-      <!-- Right Header Actions (Refresh & User Profile) -->
-      <div class="flex items-center gap-2">
-        <button onclick="loadAllData(true)" title="Refresh System Data" class="p-2 rounded-xl bg-cardDark hover:bg-[#1c1c28] border border-borderDark text-textSec hover:text-white transition">
-          <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
-        </button>
-        <div class="hidden sm:flex items-center gap-2 pl-2 border-l border-borderDark text-xs">
-          <div class="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center font-bold text-brand" id="userAvatar">
-            A
+        <div class="rounded-2xl bg-white/[.035] border border-white/[.06] p-4 mb-5">
+          <div class="text-sm text-gray-300">👋 Welcome back, <span class="font-semibold text-white">Sikandar</span></div>
+          <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
+            <span class="status-dot bg-green-500 shadow-[0_0_8px_#22c55e]"></span>
+            Signed in as Sikandar Ali
           </div>
-          <span id="userEmailBadge" class="text-textSec text-[11px] max-w-[130px] truncate">Admin</span>
         </div>
-        <button onclick="handleLogout()" class="px-3 py-1.5 rounded-xl bg-danger/10 hover:bg-danger/20 border border-danger/30 text-danger text-xs font-semibold flex items-center gap-1.5 transition ml-1">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Logout</span>
-        </button>
-      </div>
 
-    </div>
-  </header>
-
-  <!-- ========================================== -->
-  <!-- MAIN CONTENT CONTAINER -->
-  <!-- ========================================== -->
-  <main class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 pb-24 md:pb-8">
-
-    <!-- ========================================== -->
-    <!-- SECTION 1: LOGIN (RULE 2: id="loginSection")-->
-    <!-- ========================================== -->
-    <div id="loginSection" class="app-section min-h-[82vh] flex items-center justify-center">
-      <div class="w-full max-w-md glass-card-glow rounded-3xl p-6 sm:p-8 relative overflow-hidden">
-        
-        <!-- Glow accents -->
-        <div class="absolute -top-20 -right-20 w-44 h-44 bg-brand/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-20 -left-20 w-44 h-44 bg-purple/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <!-- Brand Top -->
-        <div class="text-center mb-7 relative z-10">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand to-orange-400 mx-auto flex items-center justify-center shadow-xl shadow-brand/25 mb-4">
-            <i data-lucide="shield-alert" class="w-8 h-8 text-white"></i>
+        <div id="loginError" class="hidden rounded-xl border border-red-500/30 bg-red-500/10 text-red-300 p-3 mb-4 text-sm">
+          <div class="flex gap-2">
+            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+            <span id="loginErrorText"></span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Secure Plug Portal</h2>
-          <p class="text-xs sm:text-sm text-textSec mt-1">Enterprise Hardware Locking & EMI Recovery</p>
         </div>
 
-        <!-- Explicit Error Alert (Visible on screen when login fails) -->
-        <div id="loginAlert" class="hidden mb-5 p-3.5 rounded-xl bg-danger/15 border border-danger/40 text-danger text-xs flex items-start gap-2.5">
-          <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
-          <span id="loginAlertText" class="font-medium leading-relaxed">Invalid credentials. Please verify your email and password.</span>
-        </div>
-
-        <!-- RULE 1: Form with onsubmit="return false;" to prevent page reload -->
-        <form id="loginForm" onsubmit="event.preventDefault(); handleLogin(event); return false;" class="space-y-4 relative z-10">
-          <div>
-            <label class="block text-xs font-semibold text-textSec uppercase tracking-wider mb-1.5">Admin Email</label>
+        <form id="loginForm" onsubmit="handleLogin(event); return false;">
+          <div class="mb-4">
+            <label class="text-xs text-gray-400 mb-2 block">Email</label>
             <div class="relative">
-              <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-3 text-textSec"></i>
-              <input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@secureplug.pk" value="admin@secureplug.pk" class="w-full pl-10 pr-4 py-2.5 bg-[#181822] border border-borderDark focus:border-brand focus:ring-1 focus:ring-brand rounded-xl text-sm text-white placeholder-slate-500 outline-none transition">
+              <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600"></i>
+              <input
+                id="email"
+                type="email"
+                class="input pl-10"
+                value="ladla123457ali@gmail.com"
+                autocomplete="username"
+                required
+              >
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-textSec uppercase tracking-wider mb-1.5">Master Password</label>
+          <div class="mb-5">
+            <label class="text-xs text-gray-400 mb-2 block">Password</label>
             <div class="relative">
-              <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-3 text-textSec"></i>
-              <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••••••" value="admin123" class="w-full pl-10 pr-10 py-2.5 bg-[#181822] border border-borderDark focus:border-brand focus:ring-1 focus:ring-brand rounded-xl text-sm text-white placeholder-slate-500 outline-none transition">
-              <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-3 text-textSec hover:text-white transition">
-                <i data-lucide="eye" id="passwordEyeIcon" class="w-4 h-4"></i>
+              <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600"></i>
+              <input
+                id="password"
+                type="password"
+                class="input pl-10 pr-11"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              >
+              <button
+                type="button"
+                onclick="togglePassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+              >
+                <i id="eyeIcon" data-lucide="eye" class="w-5 h-5"></i>
               </button>
             </div>
           </div>
 
-          <div class="pt-2">
-            <!-- RULE 7: Button with explicit onclick handler -->
-            <button id="loginSubmitBtn" type="button" onclick="handleLogin(event)" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand to-orange-500 hover:brightness-110 active:scale-[0.99] font-bold text-sm text-white shadow-lg shadow-brand/25 flex items-center justify-center gap-2 transition">
-              <i data-lucide="log-in" class="w-4 h-4"></i>
-              <span id="loginBtnLabel">Sign In to Dashboard</span>
-            </button>
-          </div>
+          <button id="loginButton" type="submit" class="btn btn-primary w-full rounded-xl py-3.5 font-semibold flex items-center justify-center gap-2">
+            <span>Sign In to Dashboard</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
         </form>
 
-        <div class="mt-6 pt-5 border-t border-borderDark text-center relative z-10">
-          <p class="text-[11px] text-textSec">
-            Protected by Knox Security & 256-bit Supabase Encryption
-          </p>
+        <div class="text-center text-xs text-gray-600 mt-7">
+          Authorized for Master Admin only
         </div>
+      </div>
 
+      <div class="text-center mt-5 text-[11px] text-gray-700">
+        Secure Plug • Admin Portal
       </div>
     </div>
+  </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 2: DASHBOARD (id="dashboardSection")-->
-    <!-- ========================================== -->
-    <div id="dashboardSection" class="app-section hidden space-y-6">
 
-      <!-- Welcome Banner & Quick Action Bar -->
-      <div class="glass-card rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-l-brand">
-        <div>
+  <!-- =========================================================
+       DASHBOARD
+       ========================================================= -->
+  <div id="dashboardSection" class="app-section hidden">
+    <header class="fixed top-0 left-0 right-0 z-40 h-16 glass border-t-0 border-x-0">
+      <div class="max-w-[1500px] mx-auto h-full px-4 lg:px-7 flex items-center gap-4">
+        <button onclick="showSection('dashboardSection')" class="flex items-center gap-3 shrink-0">
+          <div class="shield-gradient w-9 h-9 rounded-xl flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <span class="hidden sm:block font-bold gradient-text text-lg">Secure Plug</span>
+        </button>
+
+        <div class="hidden md:flex flex-1 max-w-xl mx-auto relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600"></i>
+          <input
+            id="globalSearch"
+            oninput="handleGlobalSearch(this.value)"
+            class="input pl-10 py-2.5"
+            placeholder="Search retailers, devices, payments..."
+          >
+        </div>
+
+        <div class="flex items-center gap-3 ml-auto">
+          <button onclick="showToast('Notifications','No new notifications','success')" class="relative w-9 h-9 rounded-xl bg-white/[.04] flex items-center justify-center text-gray-400 hover:text-white">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+          </button>
+
           <div class="flex items-center gap-2">
-            <h2 class="text-lg sm:text-xl font-extrabold text-white">System Operations Overview</h2>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">Active Portal</span>
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center font-bold text-xs">
+                SA
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-[#13131a]"></span>
+            </div>
+            <div class="hidden lg:block">
+              <div class="text-xs font-semibold">Sikandar Ali</div>
+              <div class="text-[10px] text-gray-500">Master Admin</div>
+            </div>
+            <button onclick="logout()" class="hidden lg:block ml-1 text-gray-600 hover:text-red-400" title="Sign out">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
           </div>
-          <p class="text-xs sm:text-sm text-textSec mt-1">Real-time status of Knox MDM managed mobile inventory & retail partners across Pakistan.</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button onclick="openModal('addRetailerModal')" class="px-3.5 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-brand/20 transition">
-            <i data-lucide="user-plus" class="w-4 h-4"></i> Add Retailer
-          </button>
-          <button onclick="openModal('addDeviceModal')" class="px-3.5 py-2 rounded-xl bg-cardDark hover:bg-[#1a1a24] border border-borderDark text-white text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i> Enroll Device
-          </button>
-          <button onclick="openModal('recordPaymentModal')" class="px-3.5 py-2 rounded-xl bg-success/15 hover:bg-success/25 border border-success/30 text-success text-xs font-bold flex items-center gap-1.5 transition">
-            <i data-lucide="credit-card" class="w-4 h-4"></i> Record Payment
-          </button>
         </div>
       </div>
+    </header>
 
-      <!-- KPI METRIC CARDS GRID -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        
-        <!-- Total Retailers -->
-        <div class="glass-card-glow rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-textSec">Retail Businesses</span>
-            <div class="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
-              <i data-lucide="store" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 id="kpiRetailersCount" class="text-2xl sm:text-3xl font-extrabold text-white">0</h3>
-            <p class="text-[11px] text-textSec mt-1 flex items-center gap-1">
-              <span class="text-success font-semibold flex items-center"><i data-lucide="trending-up" class="w-3 h-3"></i> 100%</span>
-              authorized shops
-            </p>
-          </div>
-        </div>
+    <aside class="desktop-nav fixed left-0 top-16 bottom-0 w-56 border-r border-[#1f1f2e] bg-[#0c0c12] p-4 z-30">
+      <nav class="space-y-1">
+        <button onclick="showSection('dashboardSection')" class="nav-item active w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+        </button>
+        <button onclick="showSection('retailersSection')" class="nav-item w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm">
+          <i data-lucide="store" class="w-4 h-4"></i> Retailers
+        </button>
+        <button onclick="showSection('devicesSection')" class="nav-item w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm">
+          <i data-lucide="smartphone" class="w-4 h-4"></i> Devices
+        </button>
+        <button onclick="showSection('paymentsSection')" class="nav-item w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm">
+          <i data-lucide="credit-card" class="w-4 h-4"></i> Payments
+        </button>
+        <button onclick="showSection('reportsSection')" class="nav-item w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Reports
+        </button>
+      </nav>
 
-        <!-- Total Monitored Devices -->
-        <div class="glass-card-glow rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-textSec">Monitored Phones</span>
-            <div class="w-8 h-8 rounded-xl bg-purple/10 text-purple flex items-center justify-center">
-              <i data-lucide="smartphone" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 id="kpiDevicesCount" class="text-2xl sm:text-3xl font-extrabold text-white">0</h3>
-            <p class="text-[11px] text-textSec mt-1">Active Knox MDM licenses</p>
-          </div>
-        </div>
-
-        <!-- Overdue / Locked Devices -->
-        <div class="glass-card-glow rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-textSec">Overdue / Locked</span>
-            <div class="w-8 h-8 rounded-xl bg-danger/10 text-danger flex items-center justify-center">
-              <i data-lucide="lock" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 id="kpiLockedCount" class="text-2xl sm:text-3xl font-extrabold text-danger">0</h3>
-            <p class="text-[11px] text-danger/80 mt-1">Requires immediate follow-up</p>
-          </div>
-        </div>
-
-        <!-- Total EMI Recovered -->
-        <div class="glass-card-glow rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-textSec">Total Recovered</span>
-            <div class="w-8 h-8 rounded-xl bg-success/10 text-success flex items-center justify-center">
-              <i data-lucide="banknote" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 id="kpiCollectedAmount" class="text-xl sm:text-2xl font-extrabold text-success">PKR 0</h3>
-            <p class="text-[11px] text-textSec mt-1">Verified via Raast & JazzCash</p>
-          </div>
-        </div>
-
+      <div class="absolute left-4 right-4 bottom-5">
+        <button onclick="logout()" class="nav-item w-full rounded-xl px-3 py-3 flex items-center gap-3 text-sm hover:text-red-400">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
       </div>
+    </aside>
 
-      <!-- CHARTS OVERVIEW SECTION -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        
-        <!-- Collection Trajectory Chart -->
-        <div class="glass-card rounded-2xl p-5 lg:col-span-2">
-          <div class="flex items-center justify-between mb-4">
+    <main class="main-content md:ml-56 pt-20 px-4 lg:px-7 pb-8">
+      <div class="max-w-[1250px] mx-auto">
+
+        <div class="orange-gradient rounded-3xl p-6 md:p-8 mb-6 relative overflow-hidden">
+          <div class="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-2xl"></div>
+          <div class="absolute right-20 bottom-[-100px] w-52 h-52 rounded-full bg-purple-500/30 blur-3xl"></div>
+
+          <div class="relative flex flex-col md:flex-row gap-7 items-center justify-between">
             <div>
-              <h3 class="text-sm font-bold text-white">EMI Installment Recovery Trend</h3>
-              <p class="text-xs text-textSec">Recent monthly collection volume in PKR</p>
+              <div class="text-white/70 text-sm mb-2">Dashboard Overview</div>
+              <h2 class="text-2xl md:text-3xl font-extrabold">Assalam-o-Alaikum, Sikandar Ali 👋</h2>
+              <p class="text-white/75 mt-2">Aaj ka overview aur business ki taraqqi</p>
+
+              <div class="flex flex-wrap gap-3 mt-6">
+                <button onclick="openRetailerModal()" class="btn bg-white text-gray-900 rounded-xl px-4 py-2.5 text-sm font-semibold">
+                  + New Retailer
+                </button>
+                <button onclick="showSection('reportsSection')" class="btn bg-black/20 border border-white/20 text-white rounded-xl px-4 py-2.5 text-sm font-semibold">
+                  View Reports
+                </button>
+              </div>
             </div>
-            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-cardDark border border-borderDark text-textSec">FY 2024-2025</span>
-          </div>
-          <div class="h-64 relative">
-            <canvas id="dashboardCollectionChart"></canvas>
+
+            <div class="relative w-32 h-32 shrink-0">
+              <svg class="w-full h-full -rotate-90">
+                <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="9"/>
+                <circle cx="64" cy="64" r="54" fill="none" stroke="white" stroke-width="9"
+                        stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="44.1"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-2xl font-extrabold">87%</span>
+                <span class="text-[10px] text-white/70">HEALTH</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Device Status Breakdown Chart -->
-        <div class="glass-card rounded-2xl p-5">
-          <div class="flex items-center justify-between mb-4">
+        <div id="dashboardStats" class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <div class="card p-5">
+            <div class="flex justify-between items-start">
+              <div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                <i data-lucide="store" class="w-5 h-5"></i>
+              </div>
+              <span class="text-xs text-green-400">Businesses</span>
+            </div>
+            <div id="statRetailers" class="text-2xl font-bold mt-5">—</div>
+            <div class="text-xs text-gray-500 mt-1">Total Retailers</div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex justify-between items-start">
+              <div class="w-10 h-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
+                <i data-lucide="smartphone" class="w-5 h-5"></i>
+              </div>
+              <span class="text-xs text-green-400">Live</span>
+            </div>
+            <div id="statDevices" class="text-2xl font-bold mt-5">—</div>
+            <div class="text-xs text-gray-500 mt-1">Active Devices</div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex justify-between items-start">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+              </div>
+              <span class="text-xs text-purple-400">Payments</span>
+            </div>
+            <div id="statRevenue" class="text-2xl font-bold mt-5">—</div>
+            <div class="text-xs text-gray-500 mt-1">Total Revenue</div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex justify-between items-start">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center">
+                <i data-lucide="triangle-alert" class="w-5 h-5"></i>
+              </div>
+              <span class="text-xs text-red-400">Attention</span>
+            </div>
+            <div id="statOverdue" class="text-2xl font-bold mt-5">—</div>
+            <div class="text-xs text-gray-500 mt-1">Overdue EMIs</div>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-5 mb-6">
+          <div class="card p-5 lg:col-span-3">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="font-semibold">Collections Trend</h3>
+                <p class="text-xs text-gray-500 mt-1">Last 6 months</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400">Revenue</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="collectionsChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card p-5 lg:col-span-2">
+            <div class="mb-5">
+              <h3 class="font-semibold">Device Status</h3>
+              <p class="text-xs text-gray-500 mt-1">Current distribution</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="deviceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="font-semibold">Recent Activity</h3>
+                <p class="text-xs text-gray-500 mt-1">Latest system activity</p>
+              </div>
+              <button onclick="loadDashboardActivity()" class="text-gray-500 hover:text-white">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div id="activityList" class="space-y-4">
+              <div class="text-sm text-gray-500">Loading activity...</div>
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <h3 class="font-semibold mb-5">Quick Actions</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="openRetailerModal()" class="btn-secondary rounded-xl p-4 text-left">
+                <i data-lucide="store" class="w-5 h-5 text-orange-400 mb-3"></i>
+                <div class="font-semibold text-sm">New Retailer</div>
+                <div class="text-[11px] text-gray-500 mt-1">Register business</div>
+              </button>
+              <button onclick="showSection('devicesSection')" class="btn-secondary rounded-xl p-4 text-left">
+                <i data-lucide="smartphone" class="w-5 h-5 text-green-400 mb-3"></i>
+                <div class="font-semibold text-sm">Manage Devices</div>
+                <div class="text-[11px] text-gray-500 mt-1">Lock / unlock</div>
+              </button>
+              <button onclick="openPaymentModal()" class="btn-secondary rounded-xl p-4 text-left">
+                <i data-lucide="receipt" class="w-5 h-5 text-purple-400 mb-3"></i>
+                <div class="font-semibold text-sm">Record Payment</div>
+                <div class="text-[11px] text-gray-500 mt-1">Add collection</div>
+              </button>
+              <button onclick="showSection('reportsSection')" class="btn-secondary rounded-xl p-4 text-left">
+                <i data-lucide="file-chart-column" class="w-5 h-5 text-yellow-400 mb-3"></i>
+                <div class="font-semibold text-sm">Reports</div>
+                <div class="text-[11px] text-gray-500 mt-1">Analyze business</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- =========================================================
+       RETAILERS
+       ========================================================= -->
+  <div id="retailersSection" class="app-section hidden">
+    <header class="fixed top-0 left-0 right-0 z-40 h-16 glass border-t-0 border-x-0">
+      <div class="max-w-[1500px] mx-auto h-full px-4 lg:px-7 flex items-center gap-4">
+        <button onclick="showSection('dashboardSection')" class="flex items-center gap-3">
+          <div class="shield-gradient w-9 h-9 rounded-xl flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <span class="hidden sm:block font-bold gradient-text text-lg">Secure Plug</span>
+        </button>
+        <div class="ml-auto flex items-center gap-3">
+          <button onclick="openRetailerModal()" class="btn btn-primary rounded-xl px-4 py-2 text-sm font-semibold">
+            + Add Retailer
+          </button>
+          <button onclick="logout()" class="text-gray-500 hover:text-red-400">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content md:ml-56 pt-20 px-4 lg:px-7 pb-24">
+      <div class="max-w-[1250px] mx-auto">
+        <div class="mb-6">
+          <div class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Management</div>
+          <h2 class="text-2xl font-bold mt-1">Retailers</h2>
+          <p class="text-gray-500 text-sm mt-1">Manage registered businesses and licenses.</p>
+        </div>
+
+        <div id="retailersGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div class="card p-8 text-center text-gray-500">Loading retailers...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- =========================================================
+       DEVICES
+       ========================================================= -->
+  <div id="devicesSection" class="app-section hidden">
+    <header class="fixed top-0 left-0 right-0 z-40 h-16 glass border-t-0 border-x-0">
+      <div class="max-w-[1500px] mx-auto h-full px-4 lg:px-7 flex items-center">
+        <button onclick="showSection('dashboardSection')" class="flex items-center gap-3">
+          <div class="shield-gradient w-9 h-9 rounded-xl flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <span class="hidden sm:block font-bold gradient-text text-lg">Secure Plug</span>
+        </button>
+        <div class="ml-auto flex items-center gap-3">
+          <button onclick="loadDevices()" class="text-gray-500 hover:text-white">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </button>
+          <button onclick="logout()" class="text-gray-500 hover:text-red-400">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content md:ml-56 pt-20 px-4 lg:px-7 pb-24">
+      <div class="max-w-[1250px] mx-auto">
+        <div class="mb-6">
+          <div class="text-xs text-green-400 font-semibold uppercase tracking-wider">Device Control</div>
+          <h2 class="text-2xl font-bold mt-1">Devices</h2>
+          <p class="text-gray-500 text-sm mt-1">Monitor devices, EMI progress and remote controls.</p>
+        </div>
+
+        <div class="card table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Customer</th>
+                <th>IMEI</th>
+                <th>Battery</th>
+                <th>EMI Progress</th>
+                <th>Status</th>
+                <th>Control</th>
+              </tr>
+            </thead>
+            <tbody id="devicesTable">
+              <tr><td colspan="7" class="text-center py-10 text-gray-500">Loading devices...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- =========================================================
+       PAYMENTS
+       ========================================================= -->
+  <div id="paymentsSection" class="app-section hidden">
+    <header class="fixed top-0 left-0 right-0 z-40 h-16 glass border-t-0 border-x-0">
+      <div class="max-w-[1500px] mx-auto h-full px-4 lg:px-7 flex items-center">
+        <button onclick="showSection('dashboardSection')" class="flex items-center gap-3">
+          <div class="shield-gradient w-9 h-9 rounded-xl flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <span class="hidden sm:block font-bold gradient-text text-lg">Secure Plug</span>
+        </button>
+        <div class="ml-auto flex items-center gap-3">
+          <button onclick="openPaymentModal()" class="btn btn-primary rounded-xl px-4 py-2 text-sm font-semibold">
+            + Record Payment
+          </button>
+          <button onclick="logout()" class="text-gray-500 hover:text-red-400">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content md:ml-56 pt-20 px-4 lg:px-7 pb-24">
+      <div class="max-w-[1250px] mx-auto">
+        <div class="mb-6">
+          <div class="text-xs text-purple-400 font-semibold uppercase tracking-wider">Collections</div>
+          <h2 class="text-2xl font-bold mt-1">Payments</h2>
+          <p class="text-gray-500 text-sm mt-1">Review and record EMI collections.</p>
+        </div>
+
+        <div class="card table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Date</th>
+                <th>Business</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTable">
+              <tr><td colspan="6" class="text-center py-10 text-gray-500">Loading payments...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- =========================================================
+       REPORTS
+       ========================================================= -->
+  <div id="reportsSection" class="app-section hidden">
+    <header class="fixed top-0 left-0 right-0 z-40 h-16 glass border-t-0 border-x-0">
+      <div class="max-w-[1500px] mx-auto h-full px-4 lg:px-7 flex items-center">
+        <button onclick="showSection('dashboardSection')" class="flex items-center gap-3">
+          <div class="shield-gradient w-9 h-9 rounded-xl flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <span class="hidden sm:block font-bold gradient-text text-lg">Secure Plug</span>
+        </button>
+        <div class="ml-auto flex items-center gap-3">
+          <button onclick="exportPaymentsCSV()" class="btn btn-secondary rounded-xl px-4 py-2 text-sm font-semibold flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Export CSV
+          </button>
+          <button onclick="logout()" class="text-gray-500 hover:text-red-400">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content md:ml-56 pt-20 px-4 lg:px-7 pb-24">
+      <div class="max-w-[1250px] mx-auto">
+        <div class="mb-6">
+          <div class="text-xs text-yellow-400 font-semibold uppercase tracking-wider">Analytics</div>
+          <h2 class="text-2xl font-bold mt-1">Reports</h2>
+          <p class="text-gray-500 text-sm mt-1">Business recovery and installment analytics.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <h3 class="font-semibold">City Recovery Rate</h3>
+            <p class="text-xs text-gray-500 mt-1 mb-5">Collected payments relative to planned EMI amounts.</p>
+            <div class="chart-container">
+              <canvas id="cityRecoveryChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <h3 class="font-semibold">Monthly Installments</h3>
+            <p class="text-xs text-gray-500 mt-1 mb-5">Payment volume by month.</p>
+            <div class="chart-container">
+              <canvas id="installmentsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5 mt-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 class="text-sm font-bold text-white">Device Security Status</h3>
-              <p class="text-xs text-textSec">Knox compliance & lock ratio</p>
+              <h3 class="font-semibold">Report Summary</h3>
+              <p class="text-xs text-gray-500 mt-1">Current database metrics.</p>
+            </div>
+            <button onclick="exportPaymentsCSV()" class="btn btn-primary rounded-xl px-4 py-2 text-sm font-semibold">
+              Export Payment CSV
+            </button>
+          </div>
+
+          <div id="reportSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+            <div class="bg-white/[.025] rounded-xl p-4">
+              <div class="text-xs text-gray-500">Payments</div>
+              <div id="reportPayments" class="text-xl font-bold mt-1">—</div>
+            </div>
+            <div class="bg-white/[.025] rounded-xl p-4">
+              <div class="text-xs text-gray-500">Revenue</div>
+              <div id="reportRevenue" class="text-xl font-bold mt-1">—</div>
+            </div>
+            <div class="bg-white/[.025] rounded-xl p-4">
+              <div class="text-xs text-gray-500">Businesses</div>
+              <div id="reportBusinesses" class="text-xl font-bold mt-1">—</div>
+            </div>
+            <div class="bg-white/[.025] rounded-xl p-4">
+              <div class="text-xs text-gray-500">Devices</div>
+              <div id="reportDevices" class="text-xl font-bold mt-1">—</div>
             </div>
           </div>
-          <div class="h-64 relative flex items-center justify-center">
-            <canvas id="dashboardStatusChart"></canvas>
-          </div>
         </div>
-
       </div>
+    </main>
+  </div>
 
-      <!-- RECENT ACTIVITIES & OVERDUE LIST -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
-        <!-- Critical Overdue Watchlist -->
-        <div class="glass-card rounded-2xl p-5">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-danger animate-pulse"></div>
-              <h3 class="text-sm font-bold text-white">Critical Overdue EMI Watchlist</h3>
-            </div>
-            <button onclick="showSection('devicesSection')" class="text-xs font-semibold text-brand hover:underline">View All</button>
-          </div>
-          <div id="dashOverdueList" class="space-y-2.5">
-            <div class="p-4 text-center text-xs text-textSec">Loading overdue devices...</div>
-          </div>
-        </div>
 
-        <!-- Latest Payments Feed -->
-        <div class="glass-card rounded-2xl p-5">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-success"></div>
-              <h3 class="text-sm font-bold text-white">Recent Transactions</h3>
-            </div>
-            <button onclick="showSection('paymentsSection')" class="text-xs font-semibold text-brand hover:underline">Full Log</button>
-          </div>
-          <div id="dashRecentPayments" class="space-y-2.5">
-            <div class="p-4 text-center text-xs text-textSec">Loading payment records...</div>
-          </div>
-        </div>
-
-      </div>
-
+  <!-- =========================================================
+       MOBILE BOTTOM NAV
+       ========================================================= -->
+  <div class="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-[#101016]/95 backdrop-blur-xl border-t border-[#24242f]">
+    <div class="grid grid-cols-5 h-16">
+      <button data-nav="dashboardSection" onclick="showSection('dashboardSection')" class="mobile-nav nav-item active flex flex-col items-center justify-center gap-1 text-[10px]">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        Home
+      </button>
+      <button data-nav="retailersSection" onclick="showSection('retailersSection')" class="mobile-nav nav-item flex flex-col items-center justify-center gap-1 text-[10px]">
+        <i data-lucide="store" class="w-5 h-5"></i>
+        Retailers
+      </button>
+      <button data-nav="devicesSection" onclick="showSection('devicesSection')" class="mobile-nav nav-item flex flex-col items-center justify-center gap-1 text-[10px]">
+        <i data-lucide="smartphone" class="w-5 h-5"></i>
+        Devices
+      </button>
+      <button data-nav="paymentsSection" onclick="showSection('paymentsSection')" class="mobile-nav nav-item flex flex-col items-center justify-center gap-1 text-[10px]">
+        <i data-lucide="credit-card" class="w-5 h-5"></i>
+        Payments
+      </button>
+      <button data-nav="reportsSection" onclick="showSection('reportsSection')" class="mobile-nav nav-item flex flex-col items-center justify-center gap-1 text-[10px]">
+        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+        Reports
+      </button>
     </div>
+  </div>
 
-    <!-- ========================================== -->
-    <!-- SECTION 3: RETAILERS (id="retailersSection")-->
-    <!-- ========================================== -->
-    <div id="retailersSection" class="app-section hidden space-y-6">
 
-      <!-- Header with Search & Add Retailer -->
-      <div class="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <!-- =========================================================
+       RETAILER MODAL
+       ========================================================= -->
+  <div id="retailerModal" class="hidden fixed inset-0 z-[200] modal-backdrop flex items-center justify-center p-4">
+    <div class="modal glass rounded-2xl w-full max-w-lg p-6">
+      <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-lg font-bold text-white">Authorized Mobile Retailers</h2>
-          <p class="text-xs text-textSec mt-0.5">Manage distributor profiles, city locations, and credit limits.</p>
+          <h3 id="retailerModalTitle" class="text-xl font-bold">Add Retailer</h3>
+          <p class="text-xs text-gray-500 mt-1">Create a new business account.</p>
         </div>
-
-        <div class="flex items-center gap-3">
-          <div class="relative w-full sm:w-64">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-textSec"></i>
-            <input id="retailerSearchInput" onkeyup="filterRetailers()" type="text" placeholder="Search by name, city, owner..." class="w-full pl-9 pr-3.5 py-2 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white placeholder-slate-500 outline-none transition">
-          </div>
-          <button onclick="openModal('addRetailerModal')" class="px-4 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-brand/20 transition whitespace-nowrap">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Retailer
-          </button>
-        </div>
-      </div>
-
-      <!-- Retailers Table / Cards Container -->
-      <div class="glass-card rounded-2xl overflow-hidden border border-borderDark">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-borderDark bg-[#161622] text-textSec uppercase text-[10px] tracking-wider font-semibold">
-                <th class="py-3 px-4">Business Name</th>
-                <th class="py-3 px-4">Owner / Contact</th>
-                <th class="py-3 px-4">City</th>
-                <th class="py-3 px-4">Monitored Phones</th>
-                <th class="py-3 px-4">Total Recovered</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="retailersTableBody" class="divide-y divide-borderDark text-slate-200">
-              <tr>
-                <td colspan="7" class="py-8 text-center text-textSec">Fetching retailers from Supabase...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ========================================== -->
-    <!-- SECTION 4: DEVICES (id="devicesSection")    -->
-    <!-- ========================================== -->
-    <div id="devicesSection" class="app-section hidden space-y-6">
-
-      <!-- Header with Filter & Enroll Device -->
-      <div class="glass-card rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Enrolled Smartphones & IMEI Registry</h2>
-          <p class="text-xs text-textSec mt-0.5">Hardware lock toggles, IMEI tracking, and Knox MDM telemetry.</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5">
-          <div class="relative w-full sm:w-56">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-textSec"></i>
-            <input id="deviceSearchInput" onkeyup="filterDevices()" type="text" placeholder="Search IMEI, model, buyer..." class="w-full pl-9 pr-3.5 py-2 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white placeholder-slate-500 outline-none transition">
-          </div>
-
-          <!-- Status Filter -->
-          <select id="deviceStatusFilter" onchange="filterDevices()" class="px-3 py-2 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-            <option value="ALL">All Statuses</option>
-            <option value="ACTIVE">Active (Unlocked)</option>
-            <option value="OVERDUE">Overdue</option>
-            <option value="LOCKED">Remote Locked</option>
-            <option value="COMPLETED">EMI Completed</option>
-          </select>
-
-          <button onclick="openModal('addDeviceModal')" class="px-4 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-brand/20 transition whitespace-nowrap">
-            <i data-lucide="plus" class="w-4 h-4"></i> Enroll Smartphone
-          </button>
-        </div>
-      </div>
-
-      <!-- Devices Grid / Table -->
-      <div class="glass-card rounded-2xl overflow-hidden border border-borderDark">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-borderDark bg-[#161622] text-textSec uppercase text-[10px] tracking-wider font-semibold">
-                <th class="py-3 px-4">Smartphone / IMEI</th>
-                <th class="py-3 px-4">Customer Name</th>
-                <th class="py-3 px-4">Retail Shop</th>
-                <th class="py-3 px-4">EMI Plan (PKR)</th>
-                <th class="py-3 px-4">Next Due Date</th>
-                <th class="py-3 px-4">MDM Lock State</th>
-                <th class="py-3 px-4 text-right">Knox MDM Action</th>
-              </tr>
-            </thead>
-            <tbody id="devicesTableBody" class="divide-y divide-borderDark text-slate-200">
-              <tr>
-                <td colspan="7" class="py-8 text-center text-textSec">Fetching device inventory from Supabase...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ========================================== -->
-    <!-- SECTION 5: PAYMENTS (id="paymentsSection")  -->
-    <!-- ========================================== -->
-    <div id="paymentsSection" class="app-section hidden space-y-6">
-
-      <!-- Header with Filter & Record Payment -->
-      <div class="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Payment Ledger & Receipts</h2>
-          <p class="text-xs text-textSec mt-0.5">Audit log of all recovered customer installment installments.</p>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <div class="relative w-full sm:w-64">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-textSec"></i>
-            <input id="paymentSearchInput" onkeyup="filterPayments()" type="text" placeholder="Search Trx ID, buyer, device..." class="w-full pl-9 pr-3.5 py-2 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white placeholder-slate-500 outline-none transition">
-          </div>
-
-          <button onclick="openModal('recordPaymentModal')" class="px-4 py-2 rounded-xl bg-success hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-success/20 transition whitespace-nowrap">
-            <i data-lucide="plus" class="w-4 h-4"></i> Record Payment
-          </button>
-        </div>
-      </div>
-
-      <!-- Payments Table -->
-      <div class="glass-card rounded-2xl overflow-hidden border border-borderDark">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-borderDark bg-[#161622] text-textSec uppercase text-[10px] tracking-wider font-semibold">
-                <th class="py-3 px-4">Trx Reference</th>
-                <th class="py-3 px-4">Device & IMEI</th>
-                <th class="py-3 px-4">Customer</th>
-                <th class="py-3 px-4">Amount Paid</th>
-                <th class="py-3 px-4">Payment Method</th>
-                <th class="py-3 px-4">Timestamp</th>
-                <th class="py-3 px-4 text-right">Verification</th>
-              </tr>
-            </thead>
-            <tbody id="paymentsTableBody" class="divide-y divide-borderDark text-slate-200">
-              <tr>
-                <td colspan="7" class="py-8 text-center text-textSec">Loading payments records from Supabase...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ========================================== -->
-    <!-- SECTION 6: REPORTS (id="reportsSection")    -->
-    <!-- ========================================== -->
-    <div id="reportsSection" class="app-section hidden space-y-6">
-
-      <!-- Header & Export Action -->
-      <div class="glass-card rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Recovery Analytics & Risk Assessment</h2>
-          <p class="text-xs text-textSec mt-0.5">Aggregated metrics on portfolio health, default rates, and shop performance.</p>
-        </div>
-
-        <button onclick="exportAuditReportCSV()" class="px-4 py-2 rounded-xl bg-cardDark hover:bg-[#1f1f2e] border border-borderDark text-white text-xs font-semibold flex items-center gap-2 transition">
-          <i data-lucide="download" class="w-4 h-4"></i> Export CSV Audit Report
+        <button onclick="closeRetailerModal()" class="text-gray-500 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- Financial Health Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="glass-card rounded-2xl p-5">
-          <span class="text-xs text-textSec font-semibold">Recovery Success Rate</span>
-          <div class="flex items-baseline gap-2 mt-2">
-            <h3 id="reportRecoveryRate" class="text-2xl font-black text-emerald-400">94.8%</h3>
-            <span class="text-xs text-emerald-500 font-bold">+2.4% MoM</span>
-          </div>
-          <div class="w-full bg-[#1b1b26] rounded-full h-2 mt-3 overflow-hidden">
-            <div class="bg-emerald-500 h-full rounded-full" style="width: 94.8%"></div>
-          </div>
-          <p class="text-[11px] text-textSec mt-2">Target benchmark: 90% collection threshold</p>
-        </div>
+      <form id="retailerForm" onsubmit="saveRetailer(event); return false;">
+        <input type="hidden" id="retailerId">
 
-        <div class="glass-card rounded-2xl p-5">
-          <span class="text-xs text-textSec font-semibold">Knox Remote Lock Efficacy</span>
-          <div class="flex items-baseline gap-2 mt-2">
-            <h3 id="reportLockSuccessRate" class="text-2xl font-black text-brand">88.2%</h3>
-            <span class="text-xs text-brand font-bold">Paid &lt; 48 hrs</span>
-          </div>
-          <div class="w-full bg-[#1b1b26] rounded-full h-2 mt-3 overflow-hidden">
-            <div class="bg-brand h-full rounded-full" style="width: 88.2%"></div>
-          </div>
-          <p class="text-[11px] text-textSec mt-2">Of locked users clear payments within 2 days</p>
-        </div>
-
-        <div class="glass-card rounded-2xl p-5">
-          <span class="text-xs text-textSec font-semibold">Outstanding Portfolio Risk</span>
-          <div class="flex items-baseline gap-2 mt-2">
-            <h3 id="reportOutstandingRisk" class="text-2xl font-black text-danger">PKR 1.2M</h3>
-            <span class="text-xs text-danger font-bold">14 accounts</span>
-          </div>
-          <div class="w-full bg-[#1b1b26] rounded-full h-2 mt-3 overflow-hidden">
-            <div class="bg-danger h-full rounded-full" style="width: 14%"></div>
-          </div>
-          <p class="text-[11px] text-textSec mt-2">Overdue past 30 days grace window</p>
-        </div>
-      </div>
-
-      <!-- Advanced Analytics Charts -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="glass-card rounded-2xl p-5">
-          <h3 class="text-sm font-bold text-white mb-1">City-Wise Recovery Distribution</h3>
-          <p class="text-xs text-textSec mb-4">Volume grouped by major Pakistani telecom hubs</p>
-          <div class="h-64 relative">
-            <canvas id="cityRecoveryChart"></canvas>
-          </div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-5">
-          <h3 class="text-sm font-bold text-white mb-1">Target vs Actual Collections</h3>
-          <p class="text-xs text-textSec mb-4">Comparison of scheduled installments vs verified revenue</p>
-          <div class="h-64 relative">
-            <canvas id="targetVsActualChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- ========================================== -->
-  <!-- RULE 10: MOBILE FIRST BOTTOM NAVIGATION     -->
-  <!-- ========================================== -->
-  <nav id="bottomNav" class="hidden md:hidden fixed bottom-0 left-0 right-0 z-40 glass-card border-t border-borderDark px-2 py-2 flex items-center justify-around">
-    <button onclick="showSection('dashboardSection')" data-sec="dashboardSection" class="bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-      <span>Dashboard</span>
-    </button>
-    <button onclick="showSection('retailersSection')" data-sec="retailersSection" class="bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition">
-      <i data-lucide="store" class="w-4 h-4"></i>
-      <span>Retailers</span>
-    </button>
-    <button onclick="showSection('devicesSection')" data-sec="devicesSection" class="bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition">
-      <i data-lucide="smartphone" class="w-4 h-4"></i>
-      <span>Devices</span>
-    </button>
-    <button onclick="showSection('paymentsSection')" data-sec="paymentsSection" class="bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition">
-      <i data-lucide="receipt" class="w-4 h-4"></i>
-      <span>Payments</span>
-    </button>
-    <button onclick="showSection('reportsSection')" data-sec="reportsSection" class="bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition">
-      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-      <span>Reports</span>
-    </button>
-  </nav>
-
-  <!-- ========================================== -->
-  <!-- MODAL: ADD RETAILER -->
-  <!-- ========================================== -->
-  <div id="addRetailerModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-lg glass-card rounded-2xl border border-borderDark p-6">
-      <div class="flex items-center justify-between pb-3 border-b border-borderDark">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="store" class="w-4 h-4 text-brand"></i> Add Authorized Retailer
-        </h3>
-        <button type="button" onclick="closeModal('addRetailerModal')" class="text-textSec hover:text-white">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <form id="addRetailerForm" onsubmit="event.preventDefault(); return false;" class="space-y-4 mt-4">
-        <div>
-          <label class="block text-xs font-semibold text-textSec mb-1">Business / Shop Name *</label>
-          <input id="retBusinessName" type="text" placeholder="e.g. Al-Madina Telecom" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Owner / Manager Name *</label>
-            <input id="retOwnerName" type="text" placeholder="e.g. Muhammad Tariq" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
+            <label class="text-xs text-gray-400">Business Name *</label>
+            <input id="retailerName" class="input mt-2" required>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Phone Number *</label>
-            <input id="retPhone" type="text" placeholder="03001234567" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
+            <label class="text-xs text-gray-400">Owner Name</label>
+            <input id="retailerOwner" class="input mt-2">
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Email</label>
+            <input id="retailerEmail" type="email" class="input mt-2">
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Phone</label>
+            <input id="retailerPhone" class="input mt-2">
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">City</label>
+            <input id="retailerCity" class="input mt-2">
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Device Limit</label>
+            <input id="retailerDeviceLimit" type="number" min="1" value="10" class="input mt-2">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-xs text-gray-400">Address</label>
+            <textarea id="retailerAddress" rows="3" class="input mt-2 resize-none"></textarea>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">City *</label>
-            <input id="retCity" type="text" placeholder="e.g. Lahore, Karachi, Rawalpindi" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Address Details</label>
-            <input id="retAddress" type="text" placeholder="Shop 4, Hafeez Centre" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-        </div>
-
-        <div class="pt-3 flex items-center justify-end gap-3 border-t border-borderDark">
-          <button type="button" onclick="closeModal('addRetailerModal')" class="px-4 py-2 rounded-xl bg-cardDark border border-borderDark text-xs font-semibold text-textSec hover:text-white">Cancel</button>
-          <button id="saveRetailerBtn" type="button" onclick="saveNewRetailer()" class="px-5 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-brand/20">Save Retailer</button>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" onclick="closeRetailerModal()" class="btn btn-secondary rounded-xl px-4 py-2.5 text-sm">
+            Cancel
+          </button>
+          <button id="retailerSubmit" type="submit" class="btn btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold">
+            Save Retailer
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL: ENROLL DEVICE -->
-  <!-- ========================================== -->
-  <div id="addDeviceModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-lg glass-card rounded-2xl border border-borderDark p-6">
-      <div class="flex items-center justify-between pb-3 border-b border-borderDark">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="smartphone" class="w-4 h-4 text-brand"></i> Enroll Smartphone for Knox EMI
-        </h3>
-        <button type="button" onclick="closeModal('addDeviceModal')" class="text-textSec hover:text-white">
-          <i data-lucide="x" class="w-4 h-4"></i>
+
+  <!-- =========================================================
+       PAYMENT MODAL
+       ========================================================= -->
+  <div id="paymentModal" class="hidden fixed inset-0 z-[200] modal-backdrop flex items-center justify-center p-4">
+    <div class="modal glass rounded-2xl w-full max-w-lg p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-xl font-bold">Record Payment</h3>
+          <p class="text-xs text-gray-500 mt-1">Add an EMI collection.</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-gray-500 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form id="addDeviceForm" onsubmit="event.preventDefault(); return false;" class="space-y-4 mt-4">
-        <div class="grid grid-cols-2 gap-3">
+      <form id="paymentForm" onsubmit="savePayment(event); return false;">
+        <div class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Smartphone Model *</label>
-            <input id="devModel" type="text" placeholder="e.g. Samsung Galaxy A15" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
+            <label class="text-xs text-gray-400">EMI Plan ID *</label>
+            <input id="paymentEmiPlan" class="input mt-2" placeholder="UUID" required>
           </div>
+
           <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">IMEI Number (15 digits) *</label>
-            <input id="devImei" type="text" maxlength="15" placeholder="358912345678901" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
+            <label class="text-xs text-gray-400">Customer ID</label>
+            <input id="paymentCustomer" class="input mt-2" placeholder="UUID">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-gray-400">Business ID</label>
+              <input id="paymentBusiness" class="input mt-2" placeholder="UUID">
+            </div>
+            <div>
+              <label class="text-xs text-gray-400">Amount *</label>
+              <input id="paymentAmount" type="number" min="0" step="0.01" class="input mt-2" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-gray-400">Payment Method</label>
+              <select id="paymentMethod" class="input mt-2">
+                <option value="cash">Cash</option>
+                <option value="bank">Bank</option>
+                <option value="jazzcash">JazzCash</option>
+                <option value="easypaisa">EasyPaisa</option>
+                <option value="online">Online</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-400">Payment Date</label>
+              <input id="paymentDate" type="date" class="input mt-2">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-gray-400">Receipt Number</label>
+            <input id="paymentReceipt" class="input mt-2">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Customer / Buyer Full Name *</label>
-            <input id="devCustomerName" type="text" placeholder="e.g. Asad Mehmood" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Customer Phone / CNIC</label>
-            <input id="devCustomerPhone" type="text" placeholder="0333-1234567 / 35201-..." class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Assign Retail Shop</label>
-            <select id="devBusinessSelect" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-              <option value="">-- Direct Sale / None --</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Total Device Price (PKR) *</label>
-            <input id="devTotalAmount" type="number" step="500" placeholder="e.g. 52000" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Monthly Installment (PKR) *</label>
-            <input id="devMonthlyEmi" type="number" step="100" placeholder="e.g. 5200" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Tenure (Months)</label>
-            <input id="devMonths" type="number" value="10" min="1" max="36" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-        </div>
-
-        <div class="pt-3 flex items-center justify-end gap-3 border-t border-borderDark">
-          <button type="button" onclick="closeModal('addDeviceModal')" class="px-4 py-2 rounded-xl bg-cardDark border border-borderDark text-xs font-semibold text-textSec hover:text-white">Cancel</button>
-          <button id="saveDeviceBtn" type="button" onclick="saveNewDevice()" class="px-5 py-2 rounded-xl bg-brand hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-brand/20">Enroll Device</button>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" onclick="closePaymentModal()" class="btn btn-secondary rounded-xl px-4 py-2.5 text-sm">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold">
+            Record Payment
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL: RECORD PAYMENT -->
-  <!-- ========================================== -->
-  <div id="recordPaymentModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-lg glass-card rounded-2xl border border-borderDark p-6">
-      <div class="flex items-center justify-between pb-3 border-b border-borderDark">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="receipt" class="w-4 h-4 text-success"></i> Record Received Installment
-        </h3>
-        <button type="button" onclick="closeModal('recordPaymentModal')" class="text-textSec hover:text-white">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
 
-      <form id="recordPaymentForm" onsubmit="event.preventDefault(); return false;" class="space-y-4 mt-4">
-        <div>
-          <label class="block text-xs font-semibold text-textSec mb-1">Customer / Device *</label>
-          <select id="payDeviceSelect" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-            <option value="">-- Select Active Device --</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Amount (PKR) *</label>
-            <input id="payAmount" type="number" step="100" placeholder="e.g. 5000" required class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-textSec mb-1">Channel *</label>
-            <select id="payChannel" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-              <option value="JazzCash">JazzCash</option>
-              <option value="Easypaisa">Easypaisa</option>
-              <option value="Raast">Raast Instant</option>
-              <option value="Cash">Cash at Counter</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-textSec mb-1">Transaction ID / Reference</label>
-          <input id="payTrxId" type="text" placeholder="e.g. JC-98234123" class="w-full px-3.5 py-2.5 bg-[#181822] border border-borderDark focus:border-brand rounded-xl text-xs text-white outline-none">
-        </div>
-
-        <div class="pt-3 flex items-center justify-end gap-3 border-t border-borderDark">
-          <button type="button" onclick="closeModal('recordPaymentModal')" class="px-4 py-2 rounded-xl bg-cardDark border border-borderDark text-xs font-semibold text-textSec hover:text-white">Cancel</button>
-          <button id="savePaymentBtn" type="button" onclick="saveNewPayment()" class="px-5 py-2 rounded-xl bg-success hover:brightness-110 text-white text-xs font-bold shadow-lg">Submit Payment</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ========================================== -->
-  <!-- MODAL: DEVICE LOCK CONFIRMATION -->
-  <!-- ========================================== -->
-  <div id="deviceLockModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-sm glass-card rounded-2xl border border-borderDark p-6 text-center">
-      <div id="deviceLockModalIcon" class="w-14 h-14 mx-auto mb-3 rounded-full bg-danger/15 flex items-center justify-center text-danger">
-        <i data-lucide="lock" class="w-7 h-7"></i>
-      </div>
-      <h3 id="deviceLockModalTitle" class="text-base font-bold text-white">Confirm Remote Lock</h3>
-      <p id="deviceLockModalDesc" class="text-xs text-textSec mt-1.5 leading-relaxed">
-        This will send a remote lock command to Knox MDM on this smartphone. The phone screen will be disabled until payment verification.
-      </p>
-
-      <div class="mt-6 flex items-center justify-center gap-3">
-        <button type="button" onclick="closeModal('deviceLockModal')" class="px-4 py-2 rounded-xl bg-cardDark border border-borderDark text-xs font-semibold text-textSec hover:text-white">Cancel</button>
-        <button id="confirmLockBtn" type="button" onclick="executeDeviceLockAction()" class="px-5 py-2 rounded-xl bg-danger hover:brightness-110 text-white text-xs font-bold shadow-lg">Confirm Action</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- JAVASCRIPT APPLICATION CORE (STRICT ORDER & ERROR HANDLING)-->
-  <!-- ======================================================== -->
+  <!-- =========================================================
+       JAVASCRIPT
+       IMPORTANT: CONFIG -> CLIENT -> FUNCTIONS -> LISTENERS
+                    -> DOMContentLoaded
+       ========================================================= -->
   <script>
-    // --------------------------------------------------------
-    // SUPABASE CONFIG & CLIENT (INITIALIZED AT VERY TOP)
-    // --------------------------------------------------------
-    const URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
-    const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
-    const sb = (window.supabase || supabase).createClient(URL, KEY, {
+
+    // =========================================================
+    // STEP 1 — Define config first
+    // =========================================================
+    const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0bXQxMXFvYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
+
+    // =========================================================
+    // STEP 2 — Initialize client IMMEDIATELY
+    // =========================================================
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -861,1038 +1026,473 @@
         storage: window.localStorage
       }
     });
-    window.sb = sb;
 
-    // Global application cache
-    let appState = {
-      user: null,
-      businesses: [],
-      devices: [],
-      payments: [],
-      emiPlans: [],
-      pendingLockDeviceId: null,
-      pendingLockTargetAction: null,
-      charts: {
-        collections: null,
-        deviceStatus: null,
-        cityRecovery: null,
-        targetVsActual: null
-      }
-    };
+    // =========================================================
+    // Application state
+    // =========================================================
+    let currentUser = null;
+    let currentProfile = null;
+    let retailerCache = [];
+    let deviceCache = [];
+    let paymentCache = [];
 
-    // --------------------------------------------------------
-    // SECTION HELPER
-    // --------------------------------------------------------
-    function showSection(sectionId) {
-      console.log("[NAV] Switching to section:", sectionId);
-      
-      const sections = ['loginSection', 'dashboardSection', 'retailersSection', 'devicesSection', 'paymentsSection', 'reportsSection'];
-      sections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.classList.add('hidden');
-        }
-      });
+    let collectionsChartInstance = null;
+    let deviceChartInstance = null;
+    let cityRecoveryChartInstance = null;
+    let installmentsChartInstance = null;
 
-      const target = document.getElementById(sectionId);
-      if (target) {
-        target.classList.remove('hidden');
-      } else {
-        console.error("[NAV] Target section not found:", sectionId);
-      }
+    // =========================================================
+    // Utility functions
+    // =========================================================
 
-      // App Header & Bottom Nav visibility
-      const appHeader = document.getElementById('appHeader');
-      const bottomNav = document.getElementById('bottomNav');
-      if (sectionId === 'loginSection') {
-        if (appHeader) appHeader.classList.add('hidden');
-        if (bottomNav) bottomNav.classList.add('hidden');
-      } else {
-        if (appHeader) appHeader.classList.remove('hidden');
-        if (bottomNav) bottomNav.classList.remove('hidden');
-        updateNavHighlight(sectionId);
-      }
-
-      // Reinitialize Lucide Icons for dynamic content
-      lucide.createIcons();
-
-      // Trigger charts resize when dashboard or reports becomes visible
-      if (sectionId === 'dashboardSection') {
-        setTimeout(renderDashboardCharts, 50);
-      } else if (sectionId === 'reportsSection') {
-        setTimeout(renderReportsCharts, 50);
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function escapeHTML(value) {
+      if (value === null || value === undefined) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    function updateNavHighlight(sectionId) {
-      // Desktop nav
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isMatch = btn.getAttribute('data-sec') === sectionId;
-        if (isMatch) {
-          btn.className = 'nav-btn px-3.5 py-1.5 rounded-lg transition-all bg-brand text-white shadow';
+    function formatMoney(value) {
+      const amount = Number(value || 0);
+      return new Intl.NumberFormat('en-PK', {
+        style: 'currency',
+        currency: 'PKR',
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function formatDate(value) {
+      if (!value) return '—';
+      try {
+        return new Date(value).toLocaleDateString('en-PK', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+      } catch (err) {
+        console.error('Date formatting error:', err);
+        return value;
+      }
+    }
+
+    function formatDateTime(value) {
+      if (!value) return '—';
+      try {
+        return new Date(value).toLocaleString('en-PK', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (err) {
+        console.error('Date time formatting error:', err);
+        return value;
+      }
+    }
+
+    function generateLicenseKey() {
+      try {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const groups = [];
+
+        for (let g = 0; g < 4; g++) {
+          let group = '';
+          for (let i = 0; i < 5; i++) {
+            group += chars[Math.floor(Math.random() * chars.length)];
+          }
+          groups.push(group);
+        }
+
+        return 'SP-' + groups.join('-');
+      } catch (err) {
+        console.error('License generation error:', err);
+        showToast('Error', err.message, 'error');
+        return '';
+      }
+    }
+
+    function showToast(title, message, type = 'success') {
+      try {
+        const toast = document.getElementById('toast');
+        const titleEl = document.getElementById('toastTitle');
+        const messageEl = document.getElementById('toastMessage');
+        const iconEl = document.getElementById('toastIcon');
+
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        toast.classList.remove('success', 'error');
+        toast.classList.add(type);
+
+        iconEl.innerHTML = type === 'error'
+          ? '<i data-lucide="circle-alert" class="w-5 h-5 text-red-400"></i>'
+          : '<i data-lucide="circle-check" class="w-5 h-5 text-green-400"></i>';
+
+        if (window.lucide) lucide.createIcons();
+
+        toast.classList.add('show');
+
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => {
+          hideToast();
+        }, 4000);
+      } catch (err) {
+        console.error('Toast error:', err);
+      }
+    }
+
+    function hideToast() {
+      try {
+        document.getElementById('toast').classList.remove('show');
+      } catch (err) {
+        console.error('Hide toast error:', err);
+      }
+    }
+
+    function showError(message) {
+      try {
+        const error = document.getElementById('loginError');
+        const text = document.getElementById('loginErrorText');
+
+        text.textContent = message;
+        error.classList.remove('hidden');
+
+        showToast('Login Error', message, 'error');
+      } catch (err) {
+        console.error('Show error error:', err);
+      }
+    }
+
+    function hideLoginError() {
+      try {
+        document.getElementById('loginError').classList.add('hidden');
+        document.getElementById('loginErrorText').textContent = '';
+      } catch (err) {
+        console.error('Hide login error:', err);
+      }
+    }
+
+    function togglePassword() {
+      try {
+        const input = document.getElementById('password');
+        const icon = document.getElementById('eyeIcon');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.setAttribute('data-lucide', 'eye-off');
         } else {
-          btn.className = 'nav-btn px-3.5 py-1.5 rounded-lg transition-all text-textSec hover:text-white';
+          input.type = 'password';
+          icon.setAttribute('data-lucide', 'eye');
         }
-      });
 
-      // Mobile bottom nav
-      document.querySelectorAll('.bot-tab').forEach(tab => {
-        const isMatch = tab.getAttribute('data-sec') === sectionId;
-        if (isMatch) {
-          tab.className = 'bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-brand transition-all';
-        } else {
-          tab.className = 'bot-tab flex-1 py-1 flex flex-col items-center gap-1 text-[10px] font-semibold text-textSec hover:text-white transition-all';
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Password toggle error:', err);
+      }
+    }
+
+    function createParticles() {
+      try {
+        const container = document.getElementById('particles');
+
+        for (let i = 0; i < 35; i++) {
+          const p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random() * 100 + '%';
+          p.style.animationDuration = (8 + Math.random() * 14) + 's';
+          p.style.animationDelay = (-Math.random() * 15) + 's';
+          p.style.opacity = String(.2 + Math.random() * .7);
+          container.appendChild(p);
         }
-      });
-    }
-
-    // --------------------------------------------------------
-    // TOAST NOTIFICATIONS
-    // --------------------------------------------------------
-    function showToast(message, type = 'info') {
-      console.log(`[TOAST][${type}] ${message}`);
-      const t = document.getElementById('toast');
-      const icon = document.getElementById('toast-icon');
-      const msg = document.getElementById('toast-msg');
-
-      if (!t || !icon || !msg) return;
-
-      msg.innerText = message;
-      if (type === 'success') {
-        t.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[200] opacity-100 translate-y-0 transition-all duration-300 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border bg-cardDark border-success/40 text-success backdrop-blur-xl";
-        icon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-success"></i>`;
-      } else if (type === 'error') {
-        t.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[200] opacity-100 translate-y-0 transition-all duration-300 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border bg-cardDark border-danger/40 text-danger backdrop-blur-xl";
-        icon.innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 text-danger"></i>`;
-      } else {
-        t.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[200] opacity-100 translate-y-0 transition-all duration-300 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold max-w-md border bg-cardDark border-brand/40 text-brand backdrop-blur-xl";
-        icon.innerHTML = `<i data-lucide="info" class="w-5 h-5 text-brand"></i>`;
+      } catch (err) {
+        console.error('Particle creation error:', err);
       }
-      lucide.createIcons();
-
-      setTimeout(() => {
-        t.classList.replace('opacity-100', 'opacity-0');
-        t.classList.add('-translate-y-6');
-      }, 3500);
     }
 
-    // --------------------------------------------------------
-    // PASSWORD VISIBILITY TOGGLE
-    // --------------------------------------------------------
-    function togglePasswordVisibility() {
-      const input = document.getElementById('loginPassword');
-      const icon = document.getElementById('passwordEyeIcon');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.setAttribute('data-lucide', 'eye-off');
-      } else {
-        input.type = 'password';
-        icon.setAttribute('data-lucide', 'eye');
-      }
-      lucide.createIcons();
-    }
+    // =========================================================
+    // STEP 3 — Then define all functions
+    // =========================================================
 
-    // --------------------------------------------------------
-    // LOGIN HANDLER
-    // --------------------------------------------------------
+    // ---------------------------------------------------------
+    // LOGIN
+    // ---------------------------------------------------------
+
     async function handleLogin(e) {
-      if (e && e.preventDefault) {
-        e.preventDefault();
-      }
+      e.preventDefault();
 
-      const emailInput = document.getElementById('loginEmail');
-      const passInput = document.getElementById('loginPassword');
-      const alertBox = document.getElementById('loginAlert');
-      const alertMsg = document.getElementById('loginAlertText');
-      const btnLabel = document.getElementById('loginBtnLabel');
-      const submitBtn = document.getElementById('loginSubmitBtn');
+      hideLoginError();
 
-      const email = emailInput ? emailInput.value.trim() : '';
-      const password = passInput ? passInput.value.trim() : '';
-
-      console.log("[AUTH] Attempting login with email:", email);
-      if (alertBox) alertBox.classList.add('hidden');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const button = document.getElementById('loginButton');
 
       if (!email || !password) {
-        if (alertBox) {
-          alertMsg.innerText = "Please enter both email and password.";
-          alertBox.classList.remove('hidden');
-        }
-        showToast("Email and password are required.", "error");
+        showError('Please enter both email and password.');
         return;
       }
 
-      // Set Loading UI
-      if (btnLabel) btnLabel.innerText = "Authenticating...";
-      if (submitBtn) submitBtn.disabled = true;
-
       try {
+        button.disabled = true;
+        button.innerHTML = `
+          <span class="animate-pulse">Signing in...</span>
+          <i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i>
+        `;
+        lucide.createIcons();
+
         const { data, error } = await sb.auth.signInWithPassword({
-          email: email,
-          password: password
+          email,
+          password
         });
 
-        console.log("[AUTH] Supabase response:", { data, error });
-
         if (error) {
-          console.error("[AUTH] Login error from Supabase:", error);
-          if (alertBox) {
-            alertMsg.innerText = error.message || "Invalid credentials.";
-            alertBox.classList.remove('hidden');
-          }
-          showToast(error.message || "Failed to sign in.", "error");
-          lucide.createIcons();
+          showError(error.message);
+          console.error('Login error:', error);
           return;
         }
 
-        if (data && data.user) {
-          console.log("[AUTH] Login successful! User ID:", data.user.id);
-          appState.user = data.user;
+        if (data.session) {
+          console.log('Login success');
 
-          // Update header profile badge
-          const badge = document.getElementById('userEmailBadge');
-          if (badge) badge.innerText = data.user.email || 'Admin';
-          const avatar = document.getElementById('userAvatar');
-          if (avatar && data.user.email) avatar.innerText = data.user.email.charAt(0).toUpperCase();
+          currentUser = data.session.user;
 
-          showToast("Signed in successfully! Loading inventory...", "success");
+          const { data: profile, error: profileError } = await sb
+            .from('profiles')
+            .select('id, business_id, role, full_name, email, phone, is_active')
+            .eq('id', data.session.user.id)
+            .single();
 
-          // Hide login, show dashboard
-          showSection('dashboardSection');
+          if (profileError) {
+            console.error('Profile lookup error:', profileError);
+            await sb.auth.signOut();
+            showError('Unable to verify your admin profile: ' + profileError.message);
+            return;
+          }
 
-          // Load real database records
-          await loadAllData();
-        } else {
-          throw new Error("No user returned from Supabase authentication.");
+          currentProfile = profile;
+
+          if (profile?.role === 'master_admin') {
+            if (profile.is_active === false) {
+              await sb.auth.signOut();
+              showError('Your master admin profile is inactive.');
+              return;
+            }
+
+            showSection('dashboardSection');
+            showToast('Welcome back', 'Signed in successfully.', 'success');
+          } else {
+            await sb.auth.signOut();
+            showError('Access Denied: Not a master admin');
+          }
         }
       } catch (err) {
-        console.error("[AUTH] Unexpected exception during login:", err);
-        if (alertBox) {
-          alertMsg.innerText = err.message || "Network error. Please check connection.";
-          alertBox.classList.remove('hidden');
-        }
-        showToast(err.message || "Login failed.", "error");
-        lucide.createIcons();
+        showError(err.message || 'An unexpected login error occurred.');
+        console.error('Login exception:', err);
       } finally {
-        if (btnLabel) btnLabel.innerText = "Sign In to Dashboard";
-        if (submitBtn) submitBtn.disabled = false;
-      }
-    }
-
-    // --------------------------------------------------------
-    // LOGOUT HANDLER
-    // --------------------------------------------------------
-    async function handleLogout() {
-      console.log("[AUTH] Logging out user...");
-      try {
-        await sb.auth.signOut();
-      } catch (err) {
-        console.warn("[AUTH] Sign out error:", err);
-      }
-      appState.user = null;
-      showToast("Logged out successfully.", "info");
-      showSection('loginSection');
-    }
-
-    // --------------------------------------------------------
-    // MODAL HELPERS
-    // --------------------------------------------------------
-    function openModal(modalId) {
-      console.log("[MODAL] Opening modal:", modalId);
-      const m = document.getElementById(modalId);
-      if (m) {
-        m.classList.remove('hidden');
+        button.disabled = false;
+        button.innerHTML = `
+          <span>Sign In to Dashboard</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        `;
         lucide.createIcons();
-
-        // Populate selects if required
-        if (modalId === 'addDeviceModal') {
-          populateBusinessSelect();
-        } else if (modalId === 'recordPaymentModal') {
-          populateDeviceSelect();
-        }
       }
     }
 
-    function closeModal(modalId) {
-      const m = document.getElementById(modalId);
-      if (m) {
-        m.classList.add('hidden');
-      }
-    }
-
-    function populateBusinessSelect() {
-      const sel = document.getElementById('devBusinessSelect');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">-- Direct Sale / None --</option>';
-      appState.businesses.forEach(b => {
-        const name = b.business_name || b.name || `Retailer #${b.id}`;
-        sel.innerHTML += `<option value="${b.id}">${name} (${b.city || 'Pakistan'})</option>`;
-      });
-    }
-
-    function populateDeviceSelect() {
-      const sel = document.getElementById('payDeviceSelect');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">-- Select Active Device --</option>';
-      appState.devices.forEach(d => {
-        const cust = d.customer_name || d.buyer_name || 'Customer';
-        const model = d.model || d.device_name || 'Smartphone';
-        const imei = d.imei ? `[${d.imei.slice(-5)}]` : '';
-        sel.innerHTML += `<option value="${d.id}">${cust} - ${model} ${imei}</option>`;
-      });
-    }
-
-    // --------------------------------------------------------
-    // DATABASE LOADER (RULE 9: REAL DATA FROM SUPABASE)
-    // --------------------------------------------------------
-    async function loadAllData(isManualRefresh = false) {
-      console.log("[DATA] Fetching fresh records from Supabase tables...");
-      const refIcon = document.getElementById('refreshIcon');
-      if (refIcon) refIcon.classList.add('animate-spin');
-
+    async function logout() {
       try {
-        // 1. Fetch Businesses
-        const { data: businesses, error: busError } = await sb
-          .from('businesses')
-          .select('*')
-          .order('id', { ascending: false });
+        const { error } = await sb.auth.signOut();
 
-        if (busError) {
-          console.warn("[DATA] Error fetching businesses:", busError.message);
-        } else {
-          appState.businesses = businesses || [];
+        if (error) {
+          console.error('Logout error:', error);
+          showToast('Logout Error', error.message, 'error');
+          return;
         }
 
-        // 2. Fetch Devices
-        const { data: devices, error: devError } = await sb
-          .from('devices')
-          .select('*')
-          .order('id', { ascending: false });
+        currentUser = null;
+        currentProfile = null;
+        showSection('loginSection');
+        document.getElementById('password').value = '';
+        showToast('Signed out', 'You have been signed out.', 'success');
+      } catch (err) {
+        console.error('Logout exception:', err);
+        showToast('Logout Error', err.message, 'error');
+      }
+    }
 
-        if (devError) {
-          console.warn("[DATA] Error fetching devices:", devError.message);
-        } else {
-          appState.devices = devices || [];
-        }
+    // ---------------------------------------------------------
+    // SECTION SWITCHING
+    // ---------------------------------------------------------
 
-        // 3. Fetch Payments
-        const { data: payments, error: payError } = await sb
-          .from('payments')
-          .select('*')
-          .order('id', { ascending: false });
-
-        if (payError) {
-          console.warn("[DATA] Error fetching payments:", payError.message);
-        } else {
-          appState.payments = payments || [];
-        }
-
-        // 4. Fetch EMI Plans
-        const { data: emiPlans, error: emiError } = await sb
-          .from('emi_plans')
-          .select('*')
-          .order('id', { ascending: false });
-
-        if (emiError) {
-          console.warn("[DATA] Error fetching emi_plans:", emiError.message);
-        } else {
-          appState.emiPlans = emiPlans || [];
-        }
-
-        console.log("[DATA] Loaded counts:", {
-          businesses: appState.businesses.length,
-          devices: appState.devices.length,
-          payments: appState.payments.length,
-          emiPlans: appState.emiPlans.length
+    function showSection(id) {
+      try {
+        document.querySelectorAll('.app-section').forEach(s => {
+          s.classList.add('hidden');
         });
 
-        // Update all UI Components
-        renderDashboardMetrics();
-        renderRetailersTable();
-        renderDevicesTable();
-        renderPaymentsTable();
-        renderDashboardCharts();
+        const section = document.getElementById(id);
 
-        if (isManualRefresh) {
-          showToast("Data refreshed from Supabase!", "success");
+        if (!section) {
+          throw new Error('Section not found: ' + id);
         }
-      } catch (err) {
-        console.error("[DATA] Fatal fetch error:", err);
-        showToast("Error updating database records: " + err.message, "error");
-      } finally {
-        if (refIcon) {
-          setTimeout(() => refIcon.classList.remove('animate-spin'), 600);
+
+        section.classList.remove('hidden');
+
+        document.querySelectorAll('.mobile-nav').forEach(item => {
+          item.classList.toggle('active', item.dataset.nav === id);
+        });
+
+        document.querySelectorAll('.desktop-nav .nav-item').forEach(item => {
+          item.classList.remove('active');
+        });
+
+        if (id === 'dashboardSection') {
+          loadDashboardData();
+          const nav = document.querySelector('.desktop-nav button:nth-child(1)');
+          if (nav) nav.classList.add('active');
         }
-      }
-    }
 
-    // --------------------------------------------------------
-    // DASHBOARD RENDERING
-    // --------------------------------------------------------
-    function renderDashboardMetrics() {
-      // 1. KPI Counts
-      const retCountEl = document.getElementById('kpiRetailersCount');
-      if (retCountEl) retCountEl.innerText = appState.businesses.length;
-
-      const devCountEl = document.getElementById('kpiDevicesCount');
-      if (devCountEl) devCountEl.innerText = appState.devices.length;
-
-      // Locked or Overdue count
-      const lockedDevices = appState.devices.filter(d => {
-        const s = (d.status || '').toUpperCase();
-        return s === 'LOCKED' || s === 'OVERDUE' || d.is_locked === true;
-      });
-      const lockedEl = document.getElementById('kpiLockedCount');
-      if (lockedEl) lockedEl.innerText = lockedDevices.length;
-
-      // Total payments sum
-      const totalCollected = appState.payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
-      const collectedEl = document.getElementById('kpiCollectedAmount');
-      if (collectedEl) collectedEl.innerText = 'PKR ' + totalCollected.toLocaleString();
-
-      // Overdue Watchlist in Dashboard
-      const dashOverdue = document.getElementById('dashOverdueList');
-      if (dashOverdue) {
-        if (lockedDevices.length === 0) {
-          dashOverdue.innerHTML = `
-            <div class="py-6 text-center text-textSec text-xs bg-[#161622] rounded-xl border border-borderDark flex flex-col items-center justify-center gap-1.5">
-              <i data-lucide="check-circle" class="w-6 h-6 text-success"></i>
-              <span>All enrolled devices are up to date! No active Knox locks.</span>
-            </div>
-          `;
-        } else {
-          dashOverdue.innerHTML = lockedDevices.slice(0, 4).map(d => {
-            const isLock = d.is_locked || (d.status || '').toUpperCase() === 'LOCKED';
-            return `
-              <div class="p-3 bg-[#161622] border border-borderDark rounded-xl flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-lg ${isLock ? 'bg-danger/20 text-danger' : 'bg-warning/20 text-warning'} flex items-center justify-center font-bold">
-                    <i data-lucide="${isLock ? 'lock' : 'clock'}" class="w-4 h-4"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-white">${d.customer_name || d.buyer_name || 'Customer'}</h4>
-                    <p class="text-[10px] text-textSec">${d.model || 'Smartphone'} • IMEI: ${d.imei ? d.imei.slice(-6) : 'N/A'}</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isLock ? 'bg-danger/20 text-danger border border-danger/30' : 'bg-warning/20 text-warning border border-warning/30'}">
-                    ${isLock ? 'KNOX LOCKED' : 'OVERDUE'}
-                  </span>
-                  <div class="mt-1">
-                    <button onclick="promptDeviceLock(${d.id}, ${!isLock})" class="text-[10px] text-textSec hover:text-white underline">
-                      ${isLock ? 'Remote Unlock' : 'Trigger Lock'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('');
+        if (id === 'retailersSection') {
+          loadRetailers();
+          const nav = document.querySelector('.desktop-nav button:nth-child(2)');
+          if (nav) nav.classList.add('active');
         }
-      }
 
-      // Recent Payments Feed in Dashboard
-      const dashPayments = document.getElementById('dashRecentPayments');
-      if (dashPayments) {
-        if (appState.payments.length === 0) {
-          dashPayments.innerHTML = `
-            <div class="py-6 text-center text-textSec text-xs bg-[#161622] rounded-xl border border-borderDark flex flex-col items-center justify-center gap-1.5">
-              <i data-lucide="inbox" class="w-6 h-6 text-textSec"></i>
-              <span>No payment receipts recorded yet.</span>
-            </div>
-          `;
-        } else {
-          dashPayments.innerHTML = appState.payments.slice(0, 4).map(p => {
-            const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Recent';
-            return `
-              <div class="p-3 bg-[#161622] border border-borderDark rounded-xl flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-success/15 text-success flex items-center justify-center font-bold">
-                    <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-white">PKR ${(Number(p.amount) || 0).toLocaleString()}</h4>
-                    <p class="text-[10px] text-textSec">${p.channel || p.payment_method || 'Instant Pay'} • ${dateStr}</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-success/10 text-success border border-success/30">
-                    VERIFIED
-                  </span>
-                  <p class="text-[10px] text-textSec mt-0.5 truncate max-w-[100px]">${p.transaction_id || p.trx_id || 'Ref #' + p.id}</p>
-                </div>
-              </div>
-            `;
-          }).join('');
+        if (id === 'devicesSection') {
+          loadDevices();
+          const nav = document.querySelector('.desktop-nav button:nth-child(3)');
+          if (nav) nav.classList.add('active');
         }
-      }
 
-      lucide.createIcons();
-    }
+        if (id === 'paymentsSection') {
+          loadPayments();
+          const nav = document.querySelector('.desktop-nav button:nth-child(4)');
+          if (nav) nav.classList.add('active');
+        }
 
-    // --------------------------------------------------------
-    // RETAILERS RENDERING & CRUD
-    // --------------------------------------------------------
-    function renderRetailersTable(filterQuery = '') {
-      const tbody = document.getElementById('retailersTableBody');
-      if (!tbody) return;
+        if (id === 'reportsSection') {
+          loadReports();
+          const nav = document.querySelector('.desktop-nav button:nth-child(5)');
+          if (nav) nav.classList.add('active');
+        }
 
-      const q = filterQuery.toLowerCase().trim();
-      const filtered = appState.businesses.filter(b => {
-        if (!q) return true;
-        const name = (b.business_name || b.name || '').toLowerCase();
-        const owner = (b.owner_name || b.owner || '').toLowerCase();
-        const city = (b.city || '').toLowerCase();
-        return name.includes(q) || owner.includes(q) || city.includes(q);
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="py-12 text-center text-textSec text-xs">
-              <i data-lucide="store" class="w-8 h-8 mx-auto mb-2 text-textSec/50"></i>
-              No authorized retail partners found matching "${filterQuery}".
-            </td>
-          </tr>
-        `;
-        lucide.createIcons();
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(b => {
-        // Count devices assigned to this business
-        const businessDevices = appState.devices.filter(d => d.business_id == b.id);
-        const name = b.business_name || b.name || `Business #${b.id}`;
-        const owner = b.owner_name || b.owner || 'N/A';
-        const city = b.city || 'Lahore';
-        const phone = b.phone || b.contact || 'N/A';
-
-        // Calculate recovery for this business
-        const devIds = businessDevices.map(d => d.id);
-        const recovered = appState.payments
-          .filter(p => devIds.includes(p.device_id))
-          .reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
-
-        return `
-          <tr class="hover:bg-[#181824] transition-colors">
-            <td class="py-3 px-4">
-              <div class="font-bold text-white">${name}</div>
-              <div class="text-[10px] text-textSec">${b.address || 'Commercial Shop'}</div>
-            </td>
-            <td class="py-3 px-4">
-              <div>${owner}</div>
-              <div class="text-[10px] text-textSec">${phone}</div>
-            </td>
-            <td class="py-3 px-4">
-              <span class="px-2 py-0.5 rounded-full text-[10px] bg-cardDark border border-borderDark text-textSec">${city}</span>
-            </td>
-            <td class="py-3 px-4 font-semibold text-white">
-              ${businessDevices.length} phones
-            </td>
-            <td class="py-3 px-4 font-semibold text-success">
-              PKR ${recovered.toLocaleString()}
-            </td>
-            <td class="py-3 px-4">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-success/15 text-success border border-success/30">
-                ACTIVE
-              </span>
-            </td>
-            <td class="py-3 px-4 text-right">
-              <button onclick="deleteRetailer(${b.id})" class="p-1.5 rounded-lg bg-danger/10 hover:bg-danger/25 text-danger border border-danger/20 transition" title="Remove Retailer">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      lucide.createIcons();
-    }
-
-    function filterRetailers() {
-      const q = document.getElementById('retailerSearchInput').value;
-      renderRetailersTable(q);
-    }
-
-    async function saveNewRetailer() {
-      const name = document.getElementById('retBusinessName').value.trim();
-      const owner = document.getElementById('retOwnerName').value.trim();
-      const phone = document.getElementById('retPhone').value.trim();
-      const city = document.getElementById('retCity').value.trim();
-      const address = document.getElementById('retAddress').value.trim();
-      const btn = document.getElementById('saveRetailerBtn');
-
-      if (!name || !owner || !phone || !city) {
-        showToast("Please fill all required retailer fields.", "error");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "Saving to Supabase...";
-
-      try {
-        const payload = {
-          business_name: name,
-          name: name,
-          owner_name: owner,
-          phone: phone,
-          city: city,
-          address: address,
-          status: 'ACTIVE'
-        };
-
-        const { data, error } = await sb.from('businesses').insert([payload]).select();
-        if (error) throw error;
-
-        showToast("Authorized retailer added successfully!", "success");
-        closeModal('addRetailerModal');
-        document.getElementById('addRetailerForm').reset();
-        await loadAllData();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
-        console.error("[RETAILER] Insertion error:", err);
-        showToast("Failed to save retailer: " + err.message, "error");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Save Retailer";
+        console.error('Section switching error:', err);
+        showToast('Navigation Error', err.message, 'error');
       }
     }
 
-    async function deleteRetailer(id) {
-      if (!confirm("Are you sure you want to remove this retailer? Associated devices will remain in the database.")) return;
+    // ---------------------------------------------------------
+    // DASHBOARD
+    // ---------------------------------------------------------
+
+    async function loadDashboardData() {
       try {
-        const { error } = await sb.from('businesses').delete().eq('id', id);
-        if (error) throw error;
-        showToast("Retailer removed.", "info");
-        await loadAllData();
-      } catch (err) {
-        console.error("[RETAILER] Delete error:", err);
-        showToast("Error deleting retailer: " + err.message, "error");
-      }
-    }
+        const [
+          retailersResult,
+          devicesResult,
+          paymentsResult,
+          overdueResult
+        ] = await Promise.all([
+          sb.from('businesses').select('id', { count: 'exact', head: true }),
+          sb.from('devices').select('id', { count: 'exact', head: true }).eq('enrollment_status', 'active'),
+          sb.from('payments').select('amount'),
+          sb.from('emi_plans').select('id', { count: 'exact', head: true }).eq('status', 'defaulted')
+        ]);
 
-    // --------------------------------------------------------
-    // DEVICES RENDERING & REMOTE LOCK (RULE 9)
-    // --------------------------------------------------------
-    function renderDevicesTable() {
-      const tbody = document.getElementById('devicesTableBody');
-      if (!tbody) return;
+        if (retailersResult.error) throw retailersResult.error;
+        if (devicesResult.error) throw devicesResult.error;
+        if (paymentsResult.error) throw paymentsResult.error;
+        if (overdueResult.error) throw overdueResult.error;
 
-      const q = (document.getElementById('deviceSearchInput')?.value || '').toLowerCase().trim();
-      const statusFilter = document.getElementById('deviceStatusFilter')?.value || 'ALL';
-
-      const filtered = appState.devices.filter(d => {
-        const s = (d.status || '').toUpperCase();
-        const isLock = d.is_locked === true || s === 'LOCKED';
-
-        // Filter status
-        if (statusFilter === 'LOCKED' && !isLock) return false;
-        if (statusFilter === 'ACTIVE' && (isLock || s === 'OVERDUE')) return false;
-        if (statusFilter === 'OVERDUE' && s !== 'OVERDUE') return false;
-        if (statusFilter === 'COMPLETED' && s !== 'COMPLETED') return false;
-
-        // Search text
-        if (!q) return true;
-        const cust = (d.customer_name || d.buyer_name || '').toLowerCase();
-        const model = (d.model || d.device_name || '').toLowerCase();
-        const imei = (d.imei || '').toLowerCase();
-        return cust.includes(q) || model.includes(q) || imei.includes(q);
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="py-12 text-center text-textSec text-xs">
-              <i data-lucide="smartphone" class="w-8 h-8 mx-auto mb-2 text-textSec/50"></i>
-              No smartphones found matching the selected filter criteria.
-            </td>
-          </tr>
-        `;
-        lucide.createIcons();
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(d => {
-        const isLock = d.is_locked === true || (d.status || '').toUpperCase() === 'LOCKED';
-        const model = d.model || d.device_name || 'Smartphone';
-        const imei = d.imei || 'Not Specified';
-        const cust = d.customer_name || d.buyer_name || 'Customer';
-        const custPhone = d.customer_phone || d.buyer_phone || '';
-        
-        // Find business name
-        const bus = appState.businesses.find(b => b.id == d.business_id);
-        const busName = bus ? (bus.business_name || bus.name) : 'Direct Registry';
-
-        const totalAmt = Number(d.total_amount || d.price || 45000);
-        const monthly = Number(d.monthly_emi || d.installment_amount || (totalAmt / 10));
-
-        // Format date
-        const dueDate = d.next_due_date ? new Date(d.next_due_date).toLocaleDateString() : '15th Next Month';
-
-        return `
-          <tr class="hover:bg-[#181824] transition-colors">
-            <td class="py-3 px-4">
-              <div class="font-bold text-white flex items-center gap-1.5">
-                <i data-lucide="smartphone" class="w-3.5 h-3.5 text-textSec"></i>
-                ${model}
-              </div>
-              <div class="text-[10px] text-textSec font-mono tracking-wider mt-0.5">IMEI: ${imei}</div>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-semibold text-white">${cust}</div>
-              <div class="text-[10px] text-textSec">${custPhone}</div>
-            </td>
-            <td class="py-3 px-4">
-              <span class="px-2 py-0.5 rounded-lg text-[10px] bg-cardDark border border-borderDark text-textSec truncate max-w-[120px] block">
-                ${busName}
-              </span>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-bold text-white">PKR ${monthly.toLocaleString()} / mo</div>
-              <div class="text-[10px] text-textSec">Total: PKR ${totalAmt.toLocaleString()}</div>
-            </td>
-            <td class="py-3 px-4">
-              <div class="text-xs font-semibold text-slate-200">${dueDate}</div>
-              <div class="text-[10px] ${isLock ? 'text-danger font-bold' : 'text-textSec'}">
-                ${isLock ? 'Knox Lock Active' : 'Grace Period'}
-              </div>
-            </td>
-            <td class="py-3 px-4">
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1 w-max ${
-                isLock 
-                  ? 'bg-danger/20 text-danger border border-danger/30' 
-                  : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-              }">
-                <i data-lucide="${isLock ? 'lock' : 'check'}" class="w-3 h-3"></i>
-                ${isLock ? 'LOCKED' : 'UNLOCKED'}
-              </span>
-            </td>
-            <td class="py-3 px-4 text-right">
-              <button onclick="promptDeviceLock(${d.id}, ${!isLock})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-auto ${
-                isLock
-                  ? 'bg-success/20 hover:bg-success/30 text-success border border-success/30'
-                  : 'bg-danger/20 hover:bg-danger/30 text-danger border border-danger/30'
-              }">
-                <i data-lucide="${isLock ? 'unlock' : 'lock'}" class="w-3.5 h-3.5"></i>
-                ${isLock ? 'Unlock Phone' : 'Lock Phone'}
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      lucide.createIcons();
-    }
-
-    function filterDevices() {
-      renderDevicesTable();
-    }
-
-    async function saveNewDevice() {
-      const model = document.getElementById('devModel').value.trim();
-      const imei = document.getElementById('devImei').value.trim();
-      const custName = document.getElementById('devCustomerName').value.trim();
-      const custPhone = document.getElementById('devCustomerPhone').value.trim();
-      const businessId = document.getElementById('devBusinessSelect').value;
-      const totalAmount = Number(document.getElementById('devTotalAmount').value);
-      const monthlyEmi = Number(document.getElementById('devMonthlyEmi').value);
-      const months = Number(document.getElementById('devMonths').value) || 10;
-      const btn = document.getElementById('saveDeviceBtn');
-
-      if (!model || !imei || !custName || !totalAmount || !monthlyEmi) {
-        showToast("Please complete all required fields for device enrollment.", "error");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "Registering with Knox MDM...";
-
-      try {
-        const payload = {
-          model: model,
-          device_name: model,
-          imei: imei,
-          customer_name: custName,
-          buyer_name: custName,
-          customer_phone: custPhone,
-          buyer_phone: custPhone,
-          business_id: businessId ? Number(businessId) : null,
-          total_amount: totalAmount,
-          monthly_emi: monthlyEmi,
-          tenure_months: months,
-          status: 'ACTIVE',
-          is_locked: false,
-          created_at: new Date().toISOString()
-        };
-
-        const { data, error } = await sb.from('devices').insert([payload]).select();
-        if (error) throw error;
-
-        showToast("Device enrolled and Knox MDM license bound!", "success");
-        closeModal('addDeviceModal');
-        document.getElementById('addDeviceForm').reset();
-        await loadAllData();
-      } catch (err) {
-        console.error("[DEVICE] Enrollment error:", err);
-        showToast("Failed to enroll device: " + err.message, "error");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Enroll Device";
-      }
-    }
-
-    function promptDeviceLock(deviceId, shouldLock) {
-      const device = appState.devices.find(d => d.id == deviceId);
-      if (!device) return;
-
-      appState.pendingLockDeviceId = deviceId;
-      appState.pendingLockTargetAction = shouldLock;
-
-      const title = document.getElementById('deviceLockModalTitle');
-      const desc = document.getElementById('deviceLockModalDesc');
-      const icon = document.getElementById('deviceLockModalIcon');
-      const confirmBtn = document.getElementById('confirmLockBtn');
-
-      const model = device.model || 'Smartphone';
-      const cust = device.customer_name || 'Customer';
-
-      if (shouldLock) {
-        title.innerText = "Confirm Remote Device Lock";
-        desc.innerText = `Sending hardware-level Knox lock command to ${model} (Buyer: ${cust}). The customer will only be able to view emergency calls and your payment recovery screen.`;
-        icon.className = "w-14 h-14 mx-auto mb-3 rounded-full bg-danger/15 flex items-center justify-center text-danger";
-        icon.innerHTML = `<i data-lucide="lock" class="w-7 h-7"></i>`;
-        confirmBtn.className = "px-5 py-2 rounded-xl bg-danger hover:brightness-110 text-white text-xs font-bold shadow-lg";
-        confirmBtn.innerText = "Lock Smartphone Now";
-      } else {
-        title.innerText = "Confirm Remote Device Unlock";
-        desc.innerText = `Customer ${cust} has cleared EMI balance. This will restore full Android OS functionality on ${model}.`;
-        icon.className = "w-14 h-14 mx-auto mb-3 rounded-full bg-success/15 flex items-center justify-center text-success";
-        icon.innerHTML = `<i data-lucide="unlock" class="w-7 h-7"></i>`;
-        confirmBtn.className = "px-5 py-2 rounded-xl bg-success hover:brightness-110 text-white text-xs font-bold shadow-lg";
-        confirmBtn.innerText = "Unlock Smartphone";
-      }
-
-      openModal('deviceLockModal');
-      lucide.createIcons();
-    }
-
-    async function executeDeviceLockAction() {
-      const devId = appState.pendingLockDeviceId;
-      const shouldLock = appState.pendingLockTargetAction;
-      const confirmBtn = document.getElementById('confirmLockBtn');
-
-      if (!devId) return;
-
-      confirmBtn.disabled = true;
-      confirmBtn.innerText = "Transmitting to Knox API...";
-
-      try {
-        const updateData = {
-          is_locked: shouldLock,
-          status: shouldLock ? 'LOCKED' : 'ACTIVE',
-          updated_at: new Date().toISOString()
-        };
-
-        const { error } = await sb.from('devices').update(updateData).eq('id', devId);
-        if (error) throw error;
-
-        showToast(
-          shouldLock ? "Remote Knox Lock command deployed successfully!" : "Smartphone unlocked successfully!",
-          shouldLock ? "error" : "success"
+        const revenue = (paymentsResult.data || []).reduce(
+          (sum, row) => sum + Number(row.amount || 0),
+          0
         );
 
-        closeModal('deviceLockModal');
-        await loadAllData();
+        document.getElementById('statRetailers').textContent =
+          retailersResult.count ?? 0;
+
+        document.getElementById('statDevices').textContent =
+          devicesResult.count ?? 0;
+
+        document.getElementById('statRevenue').textContent =
+          formatMoney(revenue);
+
+        document.getElementById('statOverdue').textContent =
+          overdueResult.count ?? 0;
+
+        await Promise.all([
+          loadCollectionsChart(),
+          loadDeviceChart(),
+          loadDashboardActivity()
+        ]);
+
       } catch (err) {
-        console.error("[KNOX] Lock command failed:", err);
-        showToast("Error updating lock status: " + err.message, "error");
-      } finally {
-        confirmBtn.disabled = false;
-        confirmBtn.innerText = "Confirm Action";
+        console.error('Dashboard loading error:', err);
+        showToast('Dashboard Error', err.message, 'error');
       }
     }
 
-    // --------------------------------------------------------
-    // PAYMENTS RENDERING & RECORDING (RULE 9)
-    // --------------------------------------------------------
-    function renderPaymentsTable(filterQuery = '') {
-      const tbody = document.getElementById('paymentsTableBody');
-      if (!tbody) return;
-
-      const q = filterQuery.toLowerCase().trim();
-      const filtered = appState.payments.filter(p => {
-        if (!q) return true;
-        const trx = (p.transaction_id || p.trx_id || '').toLowerCase();
-        const ch = (p.channel || p.payment_method || '').toLowerCase();
-        return trx.includes(q) || ch.includes(q);
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="py-12 text-center text-textSec text-xs">
-              <i data-lucide="receipt" class="w-8 h-8 mx-auto mb-2 text-textSec/50"></i>
-              No payment receipts found matching "${filterQuery}".
-            </td>
-          </tr>
-        `;
-        lucide.createIcons();
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(p => {
-        const dev = appState.devices.find(d => d.id == p.device_id);
-        const devModel = dev ? (dev.model || dev.device_name) : 'Smart Device';
-        const devImei = dev && dev.imei ? dev.imei : 'N/A';
-        const custName = dev ? (dev.customer_name || dev.buyer_name) : 'Verified Customer';
-
-        const amount = Number(p.amount) || 0;
-        const channel = p.channel || p.payment_method || 'Raast Instant';
-        const trxId = p.transaction_id || p.trx_id || `TRX-${p.id}`;
-        const dateStr = p.created_at ? new Date(p.created_at).toLocaleString() : 'Recent';
-
-        return `
-          <tr class="hover:bg-[#181824] transition-colors">
-            <td class="py-3 px-4 font-mono text-white text-xs font-bold">
-              ${trxId}
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-bold text-white">${devModel}</div>
-              <div class="text-[10px] text-textSec font-mono">IMEI: ${devImei}</div>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-semibold text-slate-200">${custName}</div>
-            </td>
-            <td class="py-3 px-4 font-black text-success">
-              PKR ${amount.toLocaleString()}
-            </td>
-            <td class="py-3 px-4">
-              <span class="px-2 py-0.5 rounded-full text-[10px] bg-cardDark border border-borderDark text-textSec">
-                ${channel}
-              </span>
-            </td>
-            <td class="py-3 px-4 text-[11px] text-textSec">
-              ${dateStr}
-            </td>
-            <td class="py-3 px-4 text-right">
-              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-success/15 text-success border border-success/30">
-                CLEARED
-              </span>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      lucide.createIcons();
-    }
-
-    function filterPayments() {
-      const q = document.getElementById('paymentSearchInput').value;
-      renderPaymentsTable(q);
-    }
-
-    async function saveNewPayment() {
-      const deviceId = document.getElementById('payDeviceSelect').value;
-      const amount = Number(document.getElementById('payAmount').value);
-      const channel = document.getElementById('payChannel').value;
-      const trxId = document.getElementById('payTrxId').value.trim() || ('PK-' + Math.floor(10000000 + Math.random() * 90000000));
-      const btn = document.getElementById('savePaymentBtn');
-
-      if (!deviceId || !amount) {
-        showToast("Please choose a device and valid installment amount.", "error");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "Submitting Receipt...";
-
+    async function loadCollectionsChart() {
       try {
-        const payload = {
-          device_id: Number(deviceId),
-          amount: amount,
-          channel: channel,
-          payment_method: channel,
-          transaction_id: trxId,
-          trx_id: trxId,
-          created_at: new Date().toISOString()
-        };
+        const start = new Date();
+        start.setMonth(start.getMonth() - 5);
+        start.setDate(1);
+        start.setHours(0, 0, 0, 0);
 
-        const { data, error } = await sb.from('payments').insert([payload]).select();
+        const { data, error } = await sb
+          .from('payments')
+          .select('amount, payment_date')
+          .gte('payment_date', start.toISOString());
+
         if (error) throw error;
 
-        // Automatically unlock device if it was locked
-        const dev = appState.devices.find(d => d.id == deviceId);
-        if (dev && dev.is_locked) {
-          console.log("[AUTO-UNLOCK] Unlocking device after verified installment:", dev.id);
-          await sb.from('devices').update({ is_locked: false, status: 'ACTIVE' }).eq('id', dev.id);
+        const months = [];
+        const values = [];
+
+        for (let i = 5; i >= 0; i--) {
+          const date = new Date();
+          date.setMonth(date.getMonth() - i);
+
+          const year = date.getFullYear();
+          const month = date.getMonth();
+
+          months.push(date.toLocaleDateString('en-US', { month: 'short' }));
+
+          const total = (data || [])
+            .filter(p => {
+              if (!p.payment_date) return false;
+              const d = new Date(p.payment_date);
+              return d.getFullYear() === year && d.getMonth() === month;
+            })
+            .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+          values.push(total);
         }
 
-        showToast("Payment recorded successfully! Knox clearance applied.", "success");
-        closeModal('recordPaymentModal');
-        document.getElementById('recordPaymentForm').reset();
-        await loadAllData();
-      } catch (err) {
-        console.error("[PAYMENT] Recording error:", err);
-        showToast("Failed to record payment: " + err.message, "error");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Submit Payment";
-      }
-    }
+        const ctx = document.getElementById('collectionsChart');
 
-    // --------------------------------------------------------
-    // CSV EXPORT (RULE 7)
-    // --------------------------------------------------------
-    function exportAuditReportCSV() {
-      console.log("[REPORTS] Generating CSV audit export...");
-      if (appState.devices.length === 0) {
-        showToast("No records available to export.", "info");
-        return;
-      }
+        if (collectionsChartInstance) {
+          collectionsChartInstance.destroy();
+        }
 
-      let csv = "ID,Model,IMEI,Customer,Retailer,Monthly_EMI,Total_Price,Lock_Status\n";
-      appState.devices.forEach(d => {
-        const bus = appState.businesses.find(b => b.id == d.business_id);
-        const busName = bus ? (bus.business_name || bus.name) : 'Direct';
-        const isLock = d.is_locked ? "LOCKED" : "UNLOCKED";
-        csv += `"${d.id}","${d.model || ''}","${d.imei || ''}","${d.customer_name || ''}","${busName}","${d.monthly_emi || ''}","${d.total_amount || ''}","${isLock}"\n`;
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `secure_plug_audit_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      showToast("Audit report CSV generated and downloaded.", "success");
-    }
-
-    // --------------------------------------------------------
-    // CHART.JS VISUALIZATIONS
-    // --------------------------------------------------------
-    function renderDashboardCharts() {
-      // 1. Recovery Trend Line Chart
-      const trendCanvas = document.getElementById('dashboardCollectionChart');
-      if (trendCanvas) {
-        if (appState.charts.collections) appState.charts.collections.destroy();
-        const ctx = trendCanvas.getContext('2d');
-        appState.charts.collections = new Chart(ctx, {
+        collectionsChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            labels: months,
             datasets: [{
-              label: 'Recovered PKR',
-              data: [120000, 240000, 410000, 680000, 890000, 1150000],
-              borderColor: '#ff6b35',
-              backgroundColor: 'rgba(255, 107, 53, 0.1)',
-              borderWidth: 2.5,
-              tension: 0.35,
+              label: 'Collections',
+              data: values,
+              borderWidth: 2,
+              tension: .4,
               fill: true,
+              backgroundColor: 'rgba(255,107,53,.08)',
+              borderColor: '#ff6b35',
               pointBackgroundColor: '#ff6b35',
-              pointRadius: 4
+              pointRadius: 3
             }]
           },
           options: {
@@ -1903,39 +1503,53 @@
             },
             scales: {
               x: {
-                grid: { color: 'rgba(31, 31, 46, 0.6)' },
-                ticks: { color: '#94a3b8', font: { size: 10 } }
+                grid: { display: false },
+                ticks: { color: '#666675' }
               },
               y: {
-                grid: { color: 'rgba(31, 31, 46, 0.6)' },
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,.05)' },
                 ticks: {
-                  color: '#94a3b8',
-                  font: { size: 10 },
-                  callback: (val) => (val / 1000) + 'k'
+                  color: '#666675',
+                  callback: value => '₨' + Number(value).toLocaleString()
                 }
               }
             }
           }
         });
+      } catch (err) {
+        console.error('Collections chart error:', err);
+        showToast('Chart Error', err.message, 'error');
       }
+    }
 
-      // 2. Status Doughnut Chart
-      const statusCanvas = document.getElementById('dashboardStatusChart');
-      if (statusCanvas) {
-        if (appState.charts.deviceStatus) appState.charts.deviceStatus.destroy();
-        const ctx = statusCanvas.getContext('2d');
-        const lockedCount = appState.devices.filter(d => d.is_locked || (d.status || '').toUpperCase() === 'LOCKED').length;
-        const activeCount = Math.max(appState.devices.length - lockedCount, 0);
+    async function loadDeviceChart() {
+      try {
+        const { data, error } = await sb
+          .from('devices')
+          .select('enrollment_status, is_locked');
 
-        appState.charts.deviceStatus = new Chart(ctx, {
+        if (error) throw error;
+
+        const active = (data || []).filter(d => d.enrollment_status === 'active').length;
+        const locked = (data || []).filter(d => d.is_locked === true).length;
+        const other = Math.max((data || []).length - active - locked, 0);
+
+        const ctx = document.getElementById('deviceChart');
+
+        if (deviceChartInstance) {
+          deviceChartInstance.destroy();
+        }
+
+        deviceChartInstance = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Unlocked / Active', 'Knox Locked'],
+            labels: ['Active', 'Locked', 'Other'],
             datasets: [{
-              data: [activeCount || 8, lockedCount || 2],
-              backgroundColor: ['#22c55e', '#ef4444'],
-              borderWidth: 0,
-              hoverOffset: 4
+              data: [active, locked, other],
+              backgroundColor: ['#22c55e', '#ef4444', '#8b5cf6'],
+              borderColor: '#13131a',
+              borderWidth: 5
             }]
           },
           options: {
@@ -1945,123 +1559,1120 @@
             plugins: {
               legend: {
                 position: 'bottom',
-                labels: { color: '#94a3b8', font: { size: 11 }, padding: 16 }
+                labels: {
+                  color: '#9999a8',
+                  padding: 18,
+                  usePointStyle: true
+                }
               }
             }
           }
         });
+      } catch (err) {
+        console.error('Device chart error:', err);
+        showToast('Chart Error', err.message, 'error');
       }
     }
 
-    function renderReportsCharts() {
-      // 1. City Recovery Horizontal Bar Chart
-      const cityCanvas = document.getElementById('cityRecoveryChart');
-      if (cityCanvas) {
-        if (appState.charts.cityRecovery) appState.charts.cityRecovery.destroy();
-        const ctx = cityCanvas.getContext('2d');
-        appState.charts.cityRecovery = new Chart(ctx, {
+    async function loadDashboardActivity() {
+      try {
+        const { data, error } = await sb
+          .from('audit_logs')
+          .select('id, action, entity_type, created_at')
+          .order('created_at', { ascending: false })
+          .limit(8);
+
+        if (error) throw error;
+
+        const container = document.getElementById('activityList');
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-7 text-gray-500 text-sm">
+              <i data-lucide="activity" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+              No recent activity yet.
+            </div>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        container.innerHTML = data.map(item => `
+          <div class="flex gap-3">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-sm text-gray-200">${escapeHTML(item.action || 'Activity')}</div>
+              <div class="text-xs text-gray-600 mt-1">
+                ${escapeHTML(item.entity_type || 'System')} • ${formatDateTime(item.created_at)}
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Activity loading error:', err);
+        showToast('Activity Error', err.message, 'error');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // RETAILERS
+    // ---------------------------------------------------------
+
+    async function loadRetailers() {
+      try {
+        const grid = document.getElementById('retailersGrid');
+
+        grid.innerHTML = `
+          <div class="card p-8 text-center text-gray-500 sm:col-span-2 xl:col-span-3">
+            Loading retailers...
+          </div>
+        `;
+
+        const { data, error } = await sb
+          .from('businesses')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        retailerCache = data || [];
+
+        if (retailerCache.length === 0) {
+          grid.innerHTML = `
+            <div class="card p-10 text-center sm:col-span-2 xl:col-span-3">
+              <i data-lucide="store" class="w-10 h-10 mx-auto text-gray-700"></i>
+              <h3 class="font-semibold mt-4">No retailers yet</h3>
+              <p class="text-sm text-gray-500 mt-1">Create your first retailer to get started.</p>
+              <button onclick="openRetailerModal()" class="btn btn-primary rounded-xl px-4 py-2 mt-5 text-sm font-semibold">
+                Add Retailer
+              </button>
+            </div>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        grid.innerHTML = retailerCache.map(business => {
+          const active = business.is_active !== false;
+
+          return `
+            <div class="card p-5">
+              <div class="flex justify-between items-start">
+                <div class="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                  <i data-lucide="store" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] px-2 py-1 rounded-full ${active
+                  ? 'bg-green-500/10 text-green-400'
+                  : 'bg-red-500/10 text-red-400'}">
+                  ${active ? 'ACTIVE' : 'SUSPENDED'}
+                </span>
+              </div>
+
+              <h3 class="font-bold mt-4 truncate">${escapeHTML(business.name || 'Unnamed Business')}</h3>
+              <p class="text-xs text-gray-500 mt-1">${escapeHTML(business.owner_name || 'No owner')}</p>
+
+              <div class="grid grid-cols-2 gap-3 mt-5">
+                <div class="bg-white/[.025] rounded-xl p-3">
+                  <div class="text-[10px] text-gray-600">City</div>
+                  <div class="text-xs mt-1">${escapeHTML(business.city || '—')}</div>
+                </div>
+                <div class="bg-white/[.025] rounded-xl p-3">
+                  <div class="text-[10px] text-gray-600">Device Limit</div>
+                  <div class="text-xs mt-1">${escapeHTML(business.device_limit ?? '—')}</div>
+                </div>
+              </div>
+
+              <div class="mt-4 text-xs text-gray-500 truncate">
+                ${escapeHTML(business.email || business.phone || 'No contact information')}
+              </div>
+
+              <div class="mt-5 pt-4 border-t border-[#24242f] flex gap-2">
+                <button onclick="editRetailer('${business.id}')" class="btn btn-secondary rounded-lg px-3 py-2 text-xs flex-1">
+                  Edit
+                </button>
+                <button onclick="toggleRetailerStatus('${business.id}', ${active})"
+                        class="btn ${active ? 'btn-danger' : 'btn-success'} rounded-lg px-3 py-2 text-xs flex-1">
+                  ${active ? 'Suspend' : 'Activate'}
+                </button>
+                <button onclick="generateBusinessLicense('${business.id}')"
+                        class="btn btn-secondary rounded-lg px-3 py-2 text-xs"
+                        title="Generate License Key">
+                  <i data-lucide="key-round" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Retailers loading error:', err);
+
+        document.getElementById('retailersGrid').innerHTML = `
+          <div class="card p-8 text-center text-red-400 sm:col-span-2 xl:col-span-3">
+            Unable to load retailers: ${escapeHTML(err.message)}
+          </div>
+        `;
+
+        showToast('Retailers Error', err.message, 'error');
+      }
+    }
+
+    function openRetailerModal(retailer = null) {
+      try {
+        document.getElementById('retailerForm').reset();
+        document.getElementById('retailerId').value = '';
+
+        if (retailer) {
+          document.getElementById('retailerModalTitle').textContent = 'Edit Retailer';
+          document.getElementById('retailerSubmit').textContent = 'Update Retailer';
+
+          document.getElementById('retailerId').value = retailer.id || '';
+          document.getElementById('retailerName').value = retailer.name || '';
+          document.getElementById('retailerOwner').value = retailer.owner_name || '';
+          document.getElementById('retailerEmail').value = retailer.email || '';
+          document.getElementById('retailerPhone').value = retailer.phone || '';
+          document.getElementById('retailerCity').value = retailer.city || '';
+          document.getElementById('retailerDeviceLimit').value = retailer.device_limit || 10;
+          document.getElementById('retailerAddress').value = retailer.address || '';
+        } else {
+          document.getElementById('retailerModalTitle').textContent = 'Add Retailer';
+          document.getElementById('retailerSubmit').textContent = 'Save Retailer';
+        }
+
+        document.getElementById('retailerModal').classList.remove('hidden');
+      } catch (err) {
+        console.error('Open retailer modal error:', err);
+        showToast('Modal Error', err.message, 'error');
+      }
+    }
+
+    function closeRetailerModal() {
+      try {
+        document.getElementById('retailerModal').classList.add('hidden');
+      } catch (err) {
+        console.error('Close retailer modal error:', err);
+      }
+    }
+
+    function editRetailer(id) {
+      try {
+        const retailer = retailerCache.find(item => String(item.id) === String(id));
+
+        if (!retailer) {
+          showToast('Error', 'Retailer not found.', 'error');
+          return;
+        }
+
+        openRetailerModal(retailer);
+      } catch (err) {
+        console.error('Edit retailer error:', err);
+        showToast('Edit Error', err.message, 'error');
+      }
+    }
+
+    async function saveRetailer(e) {
+      e.preventDefault();
+
+      try {
+        const id = document.getElementById('retailerId').value;
+
+        const payload = {
+          name: document.getElementById('retailerName').value.trim(),
+          owner_name: document.getElementById('retailerOwner').value.trim() || null,
+          email: document.getElementById('retailerEmail').value.trim() || null,
+          phone: document.getElementById('retailerPhone').value.trim() || null,
+          city: document.getElementById('retailerCity').value.trim() || null,
+          address: document.getElementById('retailerAddress').value.trim() || null,
+          device_limit: Number(document.getElementById('retailerDeviceLimit').value || 10)
+        };
+
+        let result;
+
+        if (id) {
+          result = await sb
+            .from('businesses')
+            .update(payload)
+            .eq('id', id)
+            .select()
+            .single();
+        } else {
+          result = await sb
+            .from('businesses')
+            .insert({
+              ...payload,
+              is_active: true
+            })
+            .select()
+            .single();
+        }
+
+        if (result.error) throw result.error;
+
+        closeRetailerModal();
+        showToast(
+          id ? 'Retailer Updated' : 'Retailer Created',
+          id ? 'Retailer details updated successfully.' : 'New retailer created successfully.',
+          'success'
+        );
+
+        await loadRetailers();
+        await loadDashboardData();
+      } catch (err) {
+        console.error('Save retailer error:', err);
+        showToast('Retailer Error', err.message, 'error');
+      }
+    }
+
+    async function toggleRetailerStatus(id, currentStatus) {
+      try {
+        const newStatus = !currentStatus;
+
+        const { error } = await sb
+          .from('businesses')
+          .update({ is_active: newStatus })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        showToast(
+          newStatus ? 'Retailer Activated' : 'Retailer Suspended',
+          newStatus ? 'Business access activated.' : 'Business access suspended.',
+          'success'
+        );
+
+        await loadRetailers();
+      } catch (err) {
+        console.error('Toggle retailer error:', err);
+        showToast('Status Error', err.message, 'error');
+      }
+    }
+
+    async function generateBusinessLicense(id) {
+      try {
+        const licenseKey = generateLicenseKey();
+
+        if (!licenseKey) return;
+
+        const business = retailerCache.find(item => String(item.id) === String(id));
+
+        if (!business) {
+          throw new Error('Business not found.');
+        }
+
+        const expires = new Date();
+        expires.setFullYear(expires.getFullYear() + 1);
+
+        const { error: businessError } = await sb
+          .from('businesses')
+          .update({
+            license_key: licenseKey,
+            license_expires_at: expires.toISOString()
+          })
+          .eq('id', id);
+
+        if (businessError) throw businessError;
+
+        const { error: licenseError } = await sb
+          .from('licenses')
+          .insert({
+            business_id: id,
+            license_key: licenseKey,
+            max_devices: business.device_limit || 10,
+            expires_at: expires.toISOString(),
+            is_active: true
+          });
+
+        if (licenseError) {
+          console.error('License history insert error:', licenseError);
+        }
+
+        showToast(
+          'License Generated',
+          licenseKey + ' • valid until ' + formatDate(expires),
+          'success'
+        );
+
+        await loadRetailers();
+      } catch (err) {
+        console.error('Generate license error:', err);
+        showToast('License Error', err.message, 'error');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // DEVICES
+    // ---------------------------------------------------------
+
+    async function loadDevices() {
+      try {
+        const tbody = document.getElementById('devicesTable');
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-10 text-gray-500">Loading devices...</td>
+          </tr>
+        `;
+
+        const { data, error } = await sb
+          .from('devices')
+          .select(`
+            *,
+            customers (
+              id,
+              name,
+              phone
+            )
+          `)
+          .order('last_seen_at', { ascending: false });
+
+        if (error) throw error;
+
+        deviceCache = data || [];
+
+        if (deviceCache.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center py-12">
+                <i data-lucide="smartphone" class="w-10 h-10 mx-auto text-gray-700"></i>
+                <div class="font-semibold mt-3">No devices found</div>
+                <div class="text-xs text-gray-600 mt-1">Devices will appear here after enrollment.</div>
+              </td>
+            </tr>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        const emiMap = await loadEMIProgressForDevices(deviceCache);
+
+        tbody.innerHTML = deviceCache.map(device => {
+          const customer = device.customers;
+          const emi = emiMap[device.id];
+
+          const paid = Number(emi?.total_paid || 0);
+          const total = Number(emi?.total_amount || 0);
+          const progress = total > 0
+            ? Math.min(100, Math.round((paid / total) * 100))
+            : 0;
+
+          const battery = Number(device.battery_level || 0);
+          const locked = device.is_locked === true;
+
+          return `
+            <tr>
+              <td>
+                <div class="font-semibold">${escapeHTML(device.brand || '')} ${escapeHTML(device.model || 'Unknown')}</div>
+                <div class="text-[10px] text-gray-600 mt-1">${escapeHTML(device.id)}</div>
+              </td>
+
+              <td>
+                <div>${escapeHTML(customer?.name || 'Unknown customer')}</div>
+                <div class="text-[10px] text-gray-600">${escapeHTML(customer?.phone || '')}</div>
+              </td>
+
+              <td>
+                <span class="font-mono text-xs">${escapeHTML(device.imei || '—')}</span>
+              </td>
+
+              <td>
+                <div class="flex items-center gap-2">
+                  <span class="${battery <= 20 ? 'text-red-400' : 'text-green-400'}">${battery}%</span>
+                  <div class="w-14 progress-track">
+                    <div class="progress-fill ${battery <= 20 ? '!bg-red-500' : ''}" style="width:${Math.min(100,battery)}%"></div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="min-w-[150px]">
+                <div class="flex justify-between text-[10px] mb-1">
+                  <span>${formatMoney(paid)}</span>
+                  <span>${formatMoney(total)}</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width:${progress}%"></div>
+                </div>
+                <div class="text-[10px] text-gray-600 mt-1">${progress}% paid</div>
+              </td>
+
+              <td>
+                <span class="inline-flex items-center gap-1.5 text-xs ${locked ? 'text-red-400' : 'text-green-400'}">
+                  <span class="status-dot ${locked ? 'bg-red-500' : 'bg-green-500'}"></span>
+                  ${locked ? 'Locked' : 'Active'}
+                </span>
+              </td>
+
+              <td>
+                <button
+                  onclick="sendDeviceCommand('${device.id}', '${locked ? 'unlock' : 'lock'}')"
+                  class="btn ${locked ? 'btn-success' : 'btn-danger'} rounded-lg px-3 py-2 text-xs flex items-center gap-1.5"
+                >
+                  <i data-lucide="${locked ? 'lock-open' : 'lock'}" class="w-3.5 h-3.5"></i>
+                  ${locked ? 'Unlock' : 'Lock'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Devices loading error:', err);
+
+        document.getElementById('devicesTable').innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-10 text-red-400">
+              Unable to load devices: ${escapeHTML(err.message)}
+            </td>
+          </tr>
+        `;
+
+        showToast('Devices Error', err.message, 'error');
+      }
+    }
+
+    async function loadEMIProgressForDevices(devices) {
+      try {
+        const ids = devices.map(d => d.id).filter(Boolean);
+
+        if (!ids.length) return {};
+
+        const { data, error } = await sb
+          .from('emi_plans')
+          .select('id, device_id, total_amount, total_paid, remaining_amount, status')
+          .in('device_id', ids);
+
+        if (error) throw error;
+
+        const map = {};
+
+        (data || []).forEach(emi => {
+          if (!map[emi.device_id]) {
+            map[emi.device_id] = emi;
+          }
+        });
+
+        return map;
+      } catch (err) {
+        console.error('EMI progress loading error:', err);
+        showToast('EMI Error', err.message, 'error');
+        return {};
+      }
+    }
+
+    async function sendDeviceCommand(deviceId, command) {
+      try {
+        if (!deviceId) throw new Error('Device ID is missing.');
+
+        const commandType = command === 'lock' ? 'lock' : 'unlock';
+
+        const { error } = await sb
+          .from('device_commands')
+          .insert({
+            device_id: deviceId,
+            command_type: commandType,
+            payload: {},
+            status: 'pending',
+            issued_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+
+        showToast(
+          commandType === 'lock' ? 'Lock Command Sent' : 'Unlock Command Sent',
+          'Command queued successfully for the device.',
+          'success'
+        );
+
+        await loadDevices();
+      } catch (err) {
+        console.error('Device command error:', err);
+        showToast('Command Error', err.message, 'error');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // PAYMENTS
+    // ---------------------------------------------------------
+
+    async function loadPayments() {
+      try {
+        const tbody = document.getElementById('paymentsTable');
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-10 text-gray-500">Loading payments...</td>
+          </tr>
+        `;
+
+        const { data, error } = await sb
+          .from('payments')
+          .select(`
+            *,
+            customers (
+              name,
+              phone
+            ),
+            businesses (
+              name
+            )
+          `)
+          .order('payment_date', { ascending: false })
+          .limit(500);
+
+        if (error) throw error;
+
+        paymentCache = data || [];
+
+        if (paymentCache.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center py-12">
+                <i data-lucide="receipt" class="w-10 h-10 mx-auto text-gray-700"></i>
+                <div class="font-semibold mt-3">No payments found</div>
+                <div class="text-xs text-gray-600 mt-1">Recorded payments will appear here.</div>
+              </td>
+            </tr>
+          `;
+          lucide.createIcons();
+          return;
+        }
+
+        tbody.innerHTML = paymentCache.map(payment => `
+          <tr>
+            <td>
+              <span class="font-mono text-xs text-orange-300">
+                ${escapeHTML(payment.receipt_number || '—')}
+              </span>
+            </td>
+            <td>
+              <div class="font-medium">${escapeHTML(payment.customers?.name || 'Unknown')}</div>
+              <div class="text-[10px] text-gray-600">${escapeHTML(payment.customers?.phone || '')}</div>
+            </td>
+            <td class="font-semibold text-green-400">${formatMoney(payment.amount)}</td>
+            <td>
+              <span class="capitalize px-2 py-1 rounded-lg bg-white/[.04] text-xs">
+                ${escapeHTML(payment.payment_method || '—')}
+              </span>
+            </td>
+            <td>${formatDate(payment.payment_date)}</td>
+            <td>${escapeHTML(payment.businesses?.name || '—')}</td>
+          </tr>
+        `).join('');
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error('Payments loading error:', err);
+
+        document.getElementById('paymentsTable').innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-10 text-red-400">
+              Unable to load payments: ${escapeHTML(err.message)}
+            </td>
+          </tr>
+        `;
+
+        showToast('Payments Error', err.message, 'error');
+      }
+    }
+
+    function openPaymentModal() {
+      try {
+        document.getElementById('paymentForm').reset();
+
+        const date = new Date();
+        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 10);
+
+        document.getElementById('paymentDate').value = localDate;
+        document.getElementById('paymentReceipt').value =
+          'SP-' + Date.now().toString().slice(-8);
+
+        document.getElementById('paymentModal').classList.remove('hidden');
+      } catch (err) {
+        console.error('Open payment modal error:', err);
+        showToast('Modal Error', err.message, 'error');
+      }
+    }
+
+    function closePaymentModal() {
+      try {
+        document.getElementById('paymentModal').classList.add('hidden');
+      } catch (err) {
+        console.error('Close payment modal error:', err);
+      }
+    }
+
+    async function savePayment(e) {
+      e.preventDefault();
+
+      try {
+        const amount = Number(document.getElementById('paymentAmount').value);
+
+        if (amount <= 0) {
+          throw new Error('Payment amount must be greater than zero.');
+        }
+
+        const payload = {
+          emi_plan_id: document.getElementById('paymentEmiPlan').value.trim(),
+          customer_id: document.getElementById('paymentCustomer').value.trim() || null,
+          business_id: document.getElementById('paymentBusiness').value.trim() || null,
+          amount,
+          payment_method: document.getElementById('paymentMethod').value,
+          payment_date: document.getElementById('paymentDate').value,
+          receipt_number: document.getElementById('paymentReceipt').value.trim() || null
+        };
+
+        const { error } = await sb
+          .from('payments')
+          .insert(payload);
+
+        if (error) throw error;
+
+        closePaymentModal();
+
+        showToast(
+          'Payment Recorded',
+          formatMoney(amount) + ' payment added successfully.',
+          'success'
+        );
+
+        await loadPayments();
+        await loadDashboardData();
+      } catch (err) {
+        console.error('Save payment error:', err);
+        showToast('Payment Error', err.message, 'error');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // REPORTS
+    // ---------------------------------------------------------
+
+    async function loadReports() {
+      try {
+        const [paymentsResult, businessesResult, devicesResult] = await Promise.all([
+          sb.from('payments').select('amount, payment_date, business_id, customer_id'),
+          sb.from('businesses').select('id, city, name'),
+          sb.from('devices').select('id, business_id')
+        ]);
+
+        if (paymentsResult.error) throw paymentsResult.error;
+        if (businessesResult.error) throw businessesResult.error;
+        if (devicesResult.error) throw devicesResult.error;
+
+        const payments = paymentsResult.data || [];
+        const businesses = businessesResult.data || [];
+        const devices = devicesResult.data || [];
+
+        const revenue = payments.reduce(
+          (sum, row) => sum + Number(row.amount || 0),
+          0
+        );
+
+        document.getElementById('reportPayments').textContent = payments.length;
+        document.getElementById('reportRevenue').textContent = formatMoney(revenue);
+        document.getElementById('reportBusinesses').textContent = businesses.length;
+        document.getElementById('reportDevices').textContent = devices.length;
+
+        await loadCityRecoveryChart(businesses, payments);
+        await loadInstallmentsChart(payments);
+      } catch (err) {
+        console.error('Reports loading error:', err);
+        showToast('Reports Error', err.message, 'error');
+      }
+    }
+
+    async function loadCityRecoveryChart(businesses, payments) {
+      try {
+        const cityMap = {};
+
+        businesses.forEach(business => {
+          const city = business.city || 'Unknown';
+
+          if (!cityMap[city]) {
+            cityMap[city] = {
+              businessIds: new Set(),
+              revenue: 0
+            };
+          }
+
+          cityMap[city].businessIds.add(business.id);
+        });
+
+        payments.forEach(payment => {
+          const business = businesses.find(
+            b => String(b.id) === String(payment.business_id)
+          );
+
+          const city = business?.city || 'Unknown';
+
+          if (!cityMap[city]) {
+            cityMap[city] = {
+              businessIds: new Set(),
+              revenue: 0
+            };
+          }
+
+          cityMap[city].revenue += Number(payment.amount || 0);
+        });
+
+        const entries = Object.entries(cityMap)
+          .sort((a, b) => b[1].revenue - a[1].revenue)
+          .slice(0, 8);
+
+        const labels = entries.map(([city]) => city);
+        const values = entries.map(([, info]) => info.revenue);
+
+        const ctx = document.getElementById('cityRecoveryChart');
+
+        if (cityRecoveryChartInstance) {
+          cityRecoveryChartInstance.destroy();
+        }
+
+        cityRecoveryChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Lahore', 'Karachi', 'Rawalpindi', 'Faisalabad', 'Multan'],
+            labels,
             datasets: [{
-              label: 'Portfolio (PKR M)',
-              data: [4.8, 6.2, 3.1, 2.4, 1.8],
+              label: 'Collected',
+              data: values,
               backgroundColor: '#ff6b35',
-              borderRadius: 6
+              borderRadius: 7
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            indexAxis: 'y',
-            plugins: { legend: { display: false } },
+            plugins: {
+              legend: { display: false }
+            },
             scales: {
-              x: { grid: { color: 'rgba(31, 31, 46, 0.6)' }, ticks: { color: '#94a3b8' } },
-              y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+              x: {
+                grid: { display: false },
+                ticks: { color: '#777786' }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,.05)' },
+                ticks: {
+                  color: '#777786',
+                  callback: value => '₨' + Number(value).toLocaleString()
+                }
+              }
             }
           }
         });
+      } catch (err) {
+        console.error('City recovery chart error:', err);
+        showToast('Report Chart Error', err.message, 'error');
       }
+    }
 
-      // 2. Target vs Actual Bar Chart
-      const targetCanvas = document.getElementById('targetVsActualChart');
-      if (targetCanvas) {
-        if (appState.charts.targetVsActual) appState.charts.targetVsActual.destroy();
-        const ctx = targetCanvas.getContext('2d');
-        appState.charts.targetVsActual = new Chart(ctx, {
+    async function loadInstallmentsChart(payments) {
+      try {
+        const labels = [];
+        const values = [];
+
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date();
+          d.setMonth(d.getMonth() - i);
+
+          const year = d.getFullYear();
+          const month = d.getMonth();
+
+          labels.push(d.toLocaleDateString('en-US', { month: 'short' }));
+
+          const total = payments
+            .filter(payment => {
+              if (!payment.payment_date) return false;
+
+              const date = new Date(payment.payment_date);
+
+              return date.getFullYear() === year &&
+                     date.getMonth() === month;
+            })
+            .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+
+          values.push(total);
+        }
+
+        const ctx = document.getElementById('installmentsChart');
+
+        if (installmentsChartInstance) {
+          installmentsChartInstance.destroy();
+        }
+
+        installmentsChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Jul', 'Aug', 'Sep', 'Oct'],
-            datasets: [
-              {
-                label: 'Recovery Target',
-                data: [3.5, 3.8, 4.0, 4.5],
-                backgroundColor: 'rgba(139, 92, 246, 0.4)',
-                borderColor: '#8b5cf6',
-                borderWidth: 1,
-                borderRadius: 6
-              },
-              {
-                label: 'Actual Collected',
-                data: [3.2, 3.9, 4.2, 4.6],
-                backgroundColor: '#22c55e',
-                borderRadius: 6
-              }
-            ]
+            labels,
+            datasets: [{
+              label: 'Installments',
+              data: values,
+              backgroundColor: '#8b5cf6',
+              borderRadius: 7
+            }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { 
-                display: true,
-                labels: { color: '#94a3b8', font: { size: 11 } }
-              }
+              legend: { display: false }
             },
             scales: {
-              x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-              y: { 
-                grid: { color: 'rgba(31, 31, 46, 0.6)' }, 
-                ticks: { 
-                  color: '#94a3b8',
-                  callback: (val) => val + 'M'
-                } 
+              x: {
+                grid: { display: false },
+                ticks: { color: '#777786' }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,.05)' },
+                ticks: {
+                  color: '#777786',
+                  callback: value => '₨' + Number(value).toLocaleString()
+                }
               }
             }
           }
         });
+      } catch (err) {
+        console.error('Installments chart error:', err);
+        showToast('Report Chart Error', err.message, 'error');
       }
     }
 
-    // --------------------------------------------------------
-    // PAGE LOAD & SESSION CHECK (RUNS AT THE VERY END)
-    // --------------------------------------------------------
-    window.addEventListener('DOMContentLoaded', async () => {
-      console.log("[LIFECYCLE] Secure Plug Admin mounted. Checking session...");
-      lucide.createIcons();
-
+    async function exportPaymentsCSV() {
       try {
-        const { data, error } = await sb.auth.getSession();
-        if (error) {
-          console.warn("[AUTH] getSession warning:", error);
+        let payments = paymentCache;
+
+        if (!payments || payments.length === 0) {
+          const { data, error } = await sb
+            .from('payments')
+            .select(`
+              *,
+              customers(name),
+              businesses(name)
+            `)
+            .order('payment_date', { ascending: false });
+
+          if (error) throw error;
+
+          payments = data || [];
         }
 
-        if (data && data.session) {
-          console.log("[AUTH] Existing persistent session found for user:", data.session.user.id);
-          appState.user = data.session.user;
-          // If session exists -> show dashboard
-          showSection('dashboardSection');
-          await loadAllData();
-        } else {
-          console.log("[AUTH] No active session. Showing login view.");
-          // If no session -> show login
-          showSection('loginSection');
+        if (payments.length === 0) {
+          showToast('Export', 'There are no payments to export.', 'error');
+          return;
+        }
+
+        const headers = [
+          'Receipt Number',
+          'Amount',
+          'Payment Method',
+          'Payment Date',
+          'Customer',
+          'Business',
+          'EMI Plan ID'
+        ];
+
+        const rows = payments.map(payment => [
+          payment.receipt_number || '',
+          payment.amount || '',
+          payment.payment_method || '',
+          payment.payment_date || '',
+          payment.customers?.name || '',
+          payment.businesses?.name || '',
+          payment.emi_plan_id || ''
+        ]);
+
+        const csvEscape = value => {
+          const text = String(value ?? '');
+          return '"' + text.replace(/"/g, '""') + '"';
+        };
+
+        const csv = [
+          headers.map(csvEscape).join(','),
+          ...rows.map(row => row.map(csvEscape).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csv], {
+          type: 'text/csv;charset=utf-8;'
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = 'secure-plug-payments-' +
+          new Date().toISOString().slice(0, 10) + '.csv';
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        showToast('Export Complete', 'Payment CSV downloaded successfully.', 'success');
+      } catch (err) {
+        console.error('CSV export error:', err);
+        showToast('Export Error', err.message, 'error');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // SEARCH
+    // ---------------------------------------------------------
+
+    function handleGlobalSearch(query) {
+      try {
+        const value = query.trim().toLowerCase();
+
+        if (!value) return;
+
+        if (document.getElementById('retailersSection').classList.contains('hidden') === false) {
+          const cards = document.querySelectorAll('#retailersGrid > .card');
+
+          cards.forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(value)
+              ? ''
+              : 'none';
+          });
+        }
+
+        if (document.getElementById('devicesSection').classList.contains('hidden') === false) {
+          const rows = document.querySelectorAll('#devicesTable tr');
+
+          rows.forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(value)
+              ? ''
+              : 'none';
+          });
         }
       } catch (err) {
-        console.error("[AUTH] Session verification error:", err);
-        showSection('loginSection');
+        console.error('Search error:', err);
+      }
+    }
+
+    // =========================================================
+    // STEP 4 — Then add event listeners
+    // =========================================================
+
+    document.addEventListener('click', function(e) {
+      try {
+        const retailerModal = document.getElementById('retailerModal');
+        const paymentModal = document.getElementById('paymentModal');
+
+        if (e.target === retailerModal) {
+          closeRetailerModal();
+        }
+
+        if (e.target === paymentModal) {
+          closePaymentModal();
+        }
+      } catch (err) {
+        console.error('Click listener error:', err);
       }
     });
+
+    document.addEventListener('keydown', function(e) {
+      try {
+        if (e.key === 'Escape') {
+          closeRetailerModal();
+          closePaymentModal();
+        }
+      } catch (err) {
+        console.error('Keyboard listener error:', err);
+      }
+    });
+
+    sb.auth.onAuthStateChange((event, session) => {
+      try {
+        console.log('Auth state changed:', event);
+
+        if (session) {
+          currentUser = session.user;
+        } else {
+          currentUser = null;
+        }
+      } catch (err) {
+        console.error('Auth state listener error:', err);
+      }
+    });
+
+    // =========================================================
+    // STEP 5 — Finally, on DOMContentLoaded check session
+    // =========================================================
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        createParticles();
+        lucide.createIcons();
+
+        const today = new Date();
+        const localDate = new Date(
+          today.getTime() - today.getTimezoneOffset() * 60000
+        ).toISOString().slice(0, 10);
+
+        const paymentDate = document.getElementById('paymentDate');
+        if (paymentDate) {
+          paymentDate.value = localDate;
+        }
+
+        const {
+          data: { session },
+          error: sessionError
+        } = await sb.auth.getSession();
+
+        if (sessionError) {
+          console.error('Session check error:', sessionError);
+          showSection('loginSection');
+          showError(sessionError.message);
+          return;
+        }
+
+        if (session) {
+          currentUser = session.user;
+
+          const { data: profile, error: profileError } = await sb
+            .from('profiles')
+            .select('id, business_id, role, full_name, email, phone, is_active')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError) {
+            console.error('Profile session lookup error:', profileError);
+            await sb.auth.signOut();
+            showSection('loginSection');
+            showError('Unable to verify your admin profile.');
+            return;
+          }
+
+          currentProfile = profile;
+
+          if (profile?.role === 'master_admin' && profile.is_active !== false) {
+            showSection('dashboardSection');
+            return;
+          }
+
+          await sb.auth.signOut();
+        }
+
+        showSection('loginSection');
+
+      } catch (err) {
+        console.error('DOMContentLoaded session error:', err);
+        showSection('loginSection');
+        showError(err.message || 'Unable to initialize the application.');
+      }
+    });
+
   </script>
 </body>
 </html>
