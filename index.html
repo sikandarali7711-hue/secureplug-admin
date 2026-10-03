@@ -70,6 +70,7 @@ body {
   transition: all 0.3s ease;
   box-shadow: 0 8px 24px -6px rgba(255, 107, 53, 0.4);
   font-size: 15px;
+  width: 100%;
 }
 .btn-primary:hover { transform: translateY(-2px); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -178,7 +179,7 @@ body {
                  placeholder="Enter master password" required>
         </div>
 
-        <button type="button" id="loginBtn" onclick="handleLogin(event)" class="btn-primary w-full">
+        <button type="button" id="loginBtn" onclick="handleLogin(event)" class="btn-primary">
           <span id="loginBtnText">Sign In to Dashboard</span>
         </button>
       </div>
@@ -198,7 +199,7 @@ body {
         <p class="text-xs text-gray-400">Assalam-o-Alaikum, Sikandar Ali</p>
       </div>
       <button onclick="handleLogout()" class="px-4 py-2 rounded-xl text-sm"
-              style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #1f1f2e;">
+              style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #1f1f2e; cursor: pointer;">
         Logout
       </button>
     </div>
@@ -230,16 +231,18 @@ body {
 </section>
 
 <script>
-// ═══════════════════════════════════════════════════
-// STEP 1: SUPABASE CONFIG (FIRST!)
-// ═══════════════════════════════════════════════════
 console.log('🚀 Secure Plug Admin starting...');
 
+// ═══════════════════════════════════════════════════
+// SUPABASE CONFIG — NEW PUBLISHABLE KEY
+// ═══════════════════════════════════════════════════
 const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
+const SUPABASE_ANON_KEY = 'sb_publishable_9yaDkS_CNmZyFsbjFl3U_Q_0J24yWgm';
+
+console.log('✅ Config loaded');
 
 // ═══════════════════════════════════════════════════
-// STEP 2: INITIALIZE SUPABASE (SECOND!)
+// INITIALIZE SUPABASE CLIENT (IMMEDIATELY)
 // ═══════════════════════════════════════════════════
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -252,7 +255,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 console.log('✅ Supabase client ready');
 
 // ═══════════════════════════════════════════════════
-// STEP 3: UTILITY FUNCTIONS
+// UTILITY FUNCTIONS
 // ═══════════════════════════════════════════════════
 
 function showToast(msg, type) {
@@ -278,14 +281,14 @@ function hideError() {
 }
 
 function showSection(id) {
-  console.log('📍 Showing:', id);
+  console.log('📍 Showing section:', id);
   document.getElementById('loginSection').classList.add('hidden');
   document.getElementById('dashboardSection').classList.add('hidden');
   document.getElementById(id).classList.remove('hidden');
 }
 
 // ═══════════════════════════════════════════════════
-// STEP 4: LOGIN HANDLER
+// LOGIN HANDLER
 // ═══════════════════════════════════════════════════
 
 async function handleLogin(e) {
@@ -327,7 +330,6 @@ async function handleLogin(e) {
     if (result.data && result.data.session) {
       console.log('✅ Login SUCCESS:', result.data.user.email);
       
-      // Check profile role
       const profileResult = await sb
         .from('profiles')
         .select('*')
@@ -344,11 +346,8 @@ async function handleLogin(e) {
         return;
       }
       
-      // SUCCESS — Show dashboard
       showToast('Welcome back, ' + (profileResult.data.full_name || 'Sikandar'), 'success');
       showSection('dashboardSection');
-      
-      // Load data
       loadDashboard();
     } else {
       showError('Login failed: No session created');
@@ -364,7 +363,7 @@ async function handleLogin(e) {
 }
 
 // ═══════════════════════════════════════════════════
-// STEP 5: LOGOUT
+// LOGOUT
 // ═══════════════════════════════════════════════════
 
 async function handleLogout() {
@@ -376,7 +375,7 @@ async function handleLogout() {
 }
 
 // ═══════════════════════════════════════════════════
-// STEP 6: LOAD DASHBOARD DATA
+// LOAD DASHBOARD DATA
 // ═══════════════════════════════════════════════════
 
 async function loadDashboard() {
@@ -411,7 +410,7 @@ function setText(id, val) {
 }
 
 // ═══════════════════════════════════════════════════
-// STEP 7: SESSION CHECK ON PAGE LOAD
+// SESSION CHECK ON PAGE LOAD
 // ═══════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -432,14 +431,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         .maybeSingle();
       
       if (profileResult.data && profileResult.data.role === 'master_admin') {
-        console.log('✅ Session restored — showing dashboard');
+        console.log('✅ Session restored');
         showSection('dashboardSection');
         loadDashboard();
         return;
       }
     }
     
-    console.log('📍 No valid session — showing login');
+    console.log('📍 No session — showing login');
     showSection('loginSection');
   } catch (err) {
     console.error('Session error:', err);
@@ -447,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
 
-console.log('✅ Script loaded completely — handleLogin defined:', typeof handleLogin);
+console.log('✅ Script loaded completely');
 </script>
 
 </body>
