@@ -1406,3 +1406,73 @@ async function handleAddRetailer(e) {
 // ═══════════════════════════════════════════════════
 // STEP 15: SESSION CHECK ON PAGE LOAD
 // ════════════════════════════════
+// ═══════════════════════════════════════════════════
+// STEP 15: SESSION CHECK ON PAGE LOAD
+// ═══════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🌐 Page loaded, checking session...');
+  
+  // Create floating particles
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = (100 + Math.random() * 20) + '%';
+    p.style.animation = `floatUp ${8 + Math.random() * 8}s infinite ease-in-out`;
+    p.style.animationDelay = Math.random() * 5 + 's';
+    document.body.appendChild(p);
+  }
+  
+  if (window.lucide) lucide.createIcons();
+  
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    
+    if (session) {
+      console.log('🔐 Session found:', session.user.email);
+      
+      const { data: profile } = await sb
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      if (profile && profile.role === 'master_admin') {
+        currentUser = session.user;
+        currentProfile = profile;
+        console.log('✅ Master admin session restored');
+        showSection('dashboardSection');
+        return;
+      } else {
+        console.warn('⚠️ Session user is not master_admin');
+        await sb.auth.signOut();
+      }
+    }
+    
+    console.log('📍 No session, showing login');
+    showSection('loginSection');
+    
+  } catch (err) {
+    console.error('Session check error:', err);
+    showSection('loginSection');
+  }
+});
+
+// ═══════════════════════════════════════════════════
+// STEP 16: AUTH STATE CHANGE
+// ═══════════════════════════════════════════════════
+
+sb.auth.onAuthStateChange((event, session) => {
+  console.log('🔄 Auth state changed:', event);
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    currentProfile = null;
+  }
+});
+
+console.log('✅ Secure Plug Admin ready — awaiting user action');
+</script>
+
+</body>
+</html>
