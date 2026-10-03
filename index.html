@@ -26,6 +26,7 @@ tailwind.config = {
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -35,6 +36,7 @@ body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
+  padding-bottom: 80px;
 }
 .hidden { display: none !important; }
 
@@ -70,10 +72,19 @@ body {
   transition: all 0.3s ease;
   box-shadow: 0 8px 24px -6px rgba(255, 107, 53, 0.4);
   font-size: 15px;
-  width: 100%;
 }
 .btn-primary:hover { transform: translateY(-2px); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff; font-weight: 500;
+  padding: 10px 18px; border-radius: 12px;
+  border: 1px solid #1f1f2e;
+  cursor: pointer; transition: all 0.2s ease;
+  font-size: 14px;
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 
 .input-field {
   background: rgba(255, 255, 255, 0.03);
@@ -116,6 +127,79 @@ body {
   width: 4px; height: 100%;
   background: linear-gradient(180deg, #ff6b35, #ea580c);
 }
+
+.retailer-card {
+  background: rgba(19, 19, 26, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid #1f1f2e;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+.retailer-card:hover {
+  border-color: rgba(255, 107, 53, 0.4);
+  transform: translateY(-2px);
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.badge-info { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid #1f1f2e;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+}
+.nav-item {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  padding: 8px 4px;
+  color: #6b7280; font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease;
+  border: none; background: none;
+}
+.nav-item.active { color: #ff6b35; }
+.nav-item svg { width: 22px; height: 22px; }
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 500;
+  display: flex; align-items: center;
+  justify-content: center; padding: 20px;
+}
+.modal-content {
+  background: #13131a;
+  border: 1px solid #1f1f2e;
+  border-radius: 20px;
+  width: 100%; max-width: 500px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 24px;
+}
+
+.license-key {
+  font-family: monospace;
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: inline-block;
+}
 </style>
 </head>
 
@@ -123,7 +207,6 @@ body {
 
 <div class="bg-glow glow-1"></div>
 <div class="bg-glow glow-2"></div>
-
 <div id="toast" class="toast"></div>
 
 <!-- LOGIN SECTION -->
@@ -141,7 +224,7 @@ body {
       </div>
 
       <h1 class="text-center text-3xl font-extrabold mb-2"
-          style="background: linear-gradient(to right, #ff6b35, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+          style="background: linear-gradient(to right, #ff6b35, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         Secure Plug Admin
       </h1>
       <p class="text-center text-sm text-gray-400 mb-7">Device EMI Management Portal</p>
@@ -162,46 +245,38 @@ body {
       </div>
 
       <div id="loginError" class="hidden p-3 mb-4 rounded-xl text-sm"
-           style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;">
-      </div>
+           style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;"></div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 tracking-wide">ADMIN EMAIL</label>
+          <label class="block text-xs font-semibold text-gray-400 mb-2">ADMIN EMAIL</label>
           <input type="email" id="email" class="input-field" 
-                 value="ladla123457ali@gmail.com" 
-                 placeholder="admin@secureplug.pk" required>
+                 value="ladla123457ali@gmail.com" required>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-gray-400 mb-2 tracking-wide">MASTER PASSWORD</label>
+          <label class="block text-xs font-semibold text-gray-400 mb-2">MASTER PASSWORD</label>
           <input type="password" id="password" class="input-field" 
                  placeholder="Enter master password" required>
         </div>
-
-        <button type="button" id="loginBtn" onclick="handleLogin(event)" class="btn-primary">
+        <button type="button" id="loginBtn" onclick="handleLogin(event)" class="btn-primary w-full">
           <span id="loginBtnText">Sign In to Dashboard</span>
         </button>
       </div>
 
       <p class="text-center text-xs text-gray-500 mt-5">Authorized for Master Admin only</p>
     </div>
-    <p class="text-center text-xs text-gray-600 mt-6">Secure Plug • Admin Portal</p>
   </div>
 </section>
 
 <!-- DASHBOARD SECTION -->
-<section id="dashboardSection" class="hidden relative z-10 p-4">
+<section id="dashboardSection" class="app-section hidden relative z-10 p-4">
   <div class="max-w-4xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold">Dashboard</h2>
         <p class="text-xs text-gray-400">Assalam-o-Alaikum, Sikandar Ali</p>
       </div>
-      <button onclick="handleLogout()" class="px-4 py-2 rounded-xl text-sm"
-              style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #1f1f2e; cursor: pointer;">
-        Logout
-      </button>
+      <button onclick="handleLogout()" class="btn-secondary">Logout</button>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-6">
@@ -224,26 +299,94 @@ body {
     </div>
 
     <div class="glass-card p-5">
-      <h3 class="text-sm font-bold mb-3">Recent Activity</h3>
-      <p class="text-xs text-gray-500">Login successful. System ready.</p>
+      <h3 class="text-sm font-bold mb-3">Quick Actions</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="showSection('retailersSection')" class="btn-secondary py-3">🏪 Retailers</button>
+        <button class="btn-secondary py-3">📱 Devices</button>
+        <button class="btn-secondary py-3">💳 Payments</button>
+        <button class="btn-secondary py-3">📊 Reports</button>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- RETAILERS SECTION -->
+<section id="retailersSection" class="app-section hidden relative z-10 p-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-2xl font-bold">Retailers</h2>
+        <p class="text-xs text-gray-400" id="retailerCount">Loading...</p>
+      </div>
+      <button onclick="openAddRetailerModal()" class="btn-primary py-2.5 px-4 text-sm">+ Add Retailer</button>
+    </div>
+
+    <input type="text" id="searchRetailer" class="input-field mb-4" 
+           placeholder="🔍 Search by name, city or phone..." 
+           oninput="filterRetailers()">
+
+    <div id="retailersList">
+      <p class="text-center text-gray-500 py-8 text-sm">Loading retailers...</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM NAVIGATION -->
+<nav id="bottomNav" class="bottom-nav hidden">
+  <button class="nav-item" data-section="dashboardSection" onclick="showSection('dashboardSection')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-item" data-section="retailersSection" onclick="showSection('retailersSection')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/></svg>
+    <span>Retailers</span>
+  </button>
+  <button class="nav-item" onclick="showToast('Coming soon', 'info')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+    <span>Devices</span>
+  </button>
+  <button class="nav-item" onclick="showToast('Coming soon', 'info')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+    <span>Payments</span>
+  </button>
+  <button class="nav-item" onclick="showToast('Coming soon', 'info')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+    <span>Reports</span>
+  </button>
+</nav>
+
+<!-- ADD RETAILER MODAL -->
+<div id="addRetailerModal" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('addRetailerModal')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-bold">Add New Retailer</h3>
+      <button onclick="closeModal('addRetailerModal')" style="color: #9ca3af; background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+    </div>
+    <form id="addRetailerForm" onsubmit="handleAddRetailer(event); return false;" class="space-y-3">
+      <input type="text" id="retName" class="input-field" placeholder="Business Name *" required>
+      <input type="text" id="retOwner" class="input-field" placeholder="Owner Name *" required>
+      <input type="email" id="retEmail" class="input-field" placeholder="Email *" required>
+      <input type="tel" id="retPhone" class="input-field" placeholder="Phone Number *" required>
+      <input type="text" id="retCity" class="input-field" placeholder="City *" required>
+      <input type="text" id="retAddress" class="input-field" placeholder="Address (optional)">
+      <input type="number" id="retLimit" class="input-field" placeholder="Device Limit" value="50">
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeModal('addRetailerModal')" class="btn-secondary flex-1">Cancel</button>
+        <button type="submit" class="btn-primary flex-1">Save Retailer</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
 console.log('🚀 Secure Plug Admin starting...');
 
 // ═══════════════════════════════════════════════════
-// SUPABASE CONFIG — NEW PUBLISHABLE KEY
+// SUPABASE CONFIG
 // ═══════════════════════════════════════════════════
 const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_9yaDkS_CNmZyFsbjFl3U_Q_0J24yWgm';
 
-console.log('✅ Config loaded');
-
-// ═══════════════════════════════════════════════════
-// INITIALIZE SUPABASE CLIENT (IMMEDIATELY)
-// ═══════════════════════════════════════════════════
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
@@ -252,10 +395,15 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     storage: window.localStorage
   }
 });
-console.log('✅ Supabase client ready');
+console.log('✅ Supabase ready');
 
 // ═══════════════════════════════════════════════════
-// UTILITY FUNCTIONS
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════
+let allRetailers = [];
+
+// ═══════════════════════════════════════════════════
+// UTILITIES
 // ═══════════════════════════════════════════════════
 
 function showToast(msg, type) {
@@ -272,7 +420,6 @@ function showError(msg) {
     errEl.classList.remove('hidden');
   }
   showToast(msg, 'error');
-  console.error('❌ Error:', msg);
 }
 
 function hideError() {
@@ -281,20 +428,66 @@ function hideError() {
 }
 
 function showSection(id) {
-  console.log('📍 Showing section:', id);
+  document.querySelectorAll('.app-section').forEach(function(s) {
+    s.classList.add('hidden');
+  });
   document.getElementById('loginSection').classList.add('hidden');
-  document.getElementById('dashboardSection').classList.add('hidden');
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.remove('hidden');
+    target.classList.add('app-section');
+  }
+  
+  const nav = document.getElementById('bottomNav');
+  if (id === 'loginSection') {
+    nav.classList.add('hidden');
+  } else {
+    nav.classList.remove('hidden');
+  }
+  
+  document.querySelectorAll('.nav-item').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.section === id);
+  });
+  
+  if (id === 'dashboardSection') loadDashboard();
+  if (id === 'retailersSection') loadRetailers();
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openModal(id) {
   document.getElementById(id).classList.remove('hidden');
 }
 
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function generateLicenseKey() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let key = 'SP-';
+  for (let i = 0; i < 12; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return key;
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('License key copied!', 'success');
+    });
+  } else {
+    showToast('Key: ' + text, 'info');
+  }
+}
+
 // ═══════════════════════════════════════════════════
-// LOGIN HANDLER
+// LOGIN
 // ═══════════════════════════════════════════════════
 
 async function handleLogin(e) {
   if (e) e.preventDefault();
-  console.log('🔐 Login button clicked');
-  
   hideError();
   
   const email = document.getElementById('email').value.trim();
@@ -309,7 +502,6 @@ async function handleLogin(e) {
   
   btn.disabled = true;
   btnText.textContent = 'Signing in...';
-  console.log('⏳ Attempting login for:', email);
   
   try {
     const result = await sb.auth.signInWithPassword({ 
@@ -317,10 +509,7 @@ async function handleLogin(e) {
       password: password 
     });
     
-    console.log('📥 Login response:', result);
-    
     if (result.error) {
-      console.error('❌ Login error:', result.error);
       showError(result.error.message);
       btn.disabled = false;
       btnText.textContent = 'Sign In to Dashboard';
@@ -328,15 +517,11 @@ async function handleLogin(e) {
     }
     
     if (result.data && result.data.session) {
-      console.log('✅ Login SUCCESS:', result.data.user.email);
-      
       const profileResult = await sb
         .from('profiles')
         .select('*')
         .eq('id', result.data.user.id)
         .maybeSingle();
-      
-      console.log('📥 Profile:', profileResult);
       
       if (!profileResult.data || profileResult.data.role !== 'master_admin') {
         showError('Access Denied: Not a Master Admin');
@@ -348,26 +533,19 @@ async function handleLogin(e) {
       
       showToast('Welcome back, ' + (profileResult.data.full_name || 'Sikandar'), 'success');
       showSection('dashboardSection');
-      loadDashboard();
     } else {
-      showError('Login failed: No session created');
+      showError('Login failed');
       btn.disabled = false;
       btnText.textContent = 'Sign In to Dashboard';
     }
   } catch (err) {
-    console.error('💥 Exception:', err);
     showError('Error: ' + err.message);
     btn.disabled = false;
     btnText.textContent = 'Sign In to Dashboard';
   }
 }
 
-// ═══════════════════════════════════════════════════
-// LOGOUT
-// ═══════════════════════════════════════════════════
-
 async function handleLogout() {
-  console.log('🚪 Logout');
   await sb.auth.signOut();
   document.getElementById('password').value = '';
   showSection('loginSection');
@@ -375,12 +553,10 @@ async function handleLogout() {
 }
 
 // ═══════════════════════════════════════════════════
-// LOAD DASHBOARD DATA
+// DASHBOARD
 // ═══════════════════════════════════════════════════
 
 async function loadDashboard() {
-  console.log('📊 Loading dashboard data...');
-  
   try {
     const r1 = await sb.from('businesses').select('*', { count: 'exact', head: true });
     setText('statRetailers', r1.count || 0);
@@ -390,15 +566,11 @@ async function loadDashboard() {
     
     const r3 = await sb.from('payments').select('amount');
     let total = 0;
-    if (r3.data) {
-      r3.data.forEach(function(p) { total += Number(p.amount) || 0; });
-    }
+    if (r3.data) r3.data.forEach(function(p) { total += Number(p.amount) || 0; });
     setText('statRevenue', 'Rs ' + total.toLocaleString());
     
     const r4 = await sb.from('emi_plans').select('*', { count: 'exact', head: true }).eq('status', 'defaulted');
     setText('statOverdue', r4.count || 0);
-    
-    console.log('✅ Dashboard loaded');
   } catch (err) {
     console.error('Dashboard error:', err);
   }
@@ -410,19 +582,164 @@ function setText(id, val) {
 }
 
 // ═══════════════════════════════════════════════════
-// SESSION CHECK ON PAGE LOAD
+// RETAILERS
+// ═══════════════════════════════════════════════════
+
+async function loadRetailers() {
+  const list = document.getElementById('retailersList');
+  const countEl = document.getElementById('retailerCount');
+  
+  list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">Loading...</p>';
+  
+  try {
+    const result = await sb
+      .from('businesses')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (result.error) throw result.error;
+    
+    allRetailers = result.data || [];
+    
+    if (allRetailers.length === 0) {
+      list.innerHTML = '<div class="glass-card p-8 text-center"><p class="text-gray-400 mb-4">No retailers yet</p><button onclick="openAddRetailerModal()" class="btn-primary py-2.5 px-6">+ Add First Retailer</button></div>';
+      countEl.textContent = '0 retailers';
+      return;
+    }
+    
+    countEl.textContent = allRetailers.length + ' retailer' + (allRetailers.length > 1 ? 's' : '');
+    renderRetailers(allRetailers);
+  } catch (err) {
+    console.error('Load retailers error:', err);
+    list.innerHTML = '<p class="text-center text-danger py-8 text-sm">Error: ' + err.message + '</p>';
+  }
+}
+
+function filterRetailers() {
+  const query = document.getElementById('searchRetailer').value.toLowerCase();
+  const filtered = allRetailers.filter(function(r) {
+    return (r.name || '').toLowerCase().includes(query) ||
+           (r.owner_name || '').toLowerCase().includes(query) ||
+           (r.city || '').toLowerCase().includes(query) ||
+           (r.phone || '').toLowerCase().includes(query);
+  });
+  renderRetailers(filtered);
+}
+
+function renderRetailers(retailers) {
+  const list = document.getElementById('retailersList');
+  
+  if (retailers.length === 0) {
+    list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">No matching retailers</p>';
+    return;
+  }
+  
+  list.innerHTML = retailers.map(function(r) {
+    const initials = (r.name || 'R').substring(0, 2).toUpperCase();
+    const status = r.is_active !== false ? 'Active' : 'Suspended';
+    const statusClass = r.is_active !== false ? 'badge-success' : 'badge-danger';
+    const licenseKey = r.license_key || 'Not generated';
+    
+    return '<div class="retailer-card">' +
+      '<div class="flex items-start gap-3">' +
+        '<div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm" style="background: linear-gradient(135deg, #ff6b35, #8b5cf6);">' + initials + '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-start justify-between gap-2 mb-1">' +
+            '<h3 class="font-bold text-sm truncate">' + (r.name || 'Unnamed') + '</h3>' +
+            '<span class="badge ' + statusClass + '">' + status + '</span>' +
+          '</div>' +
+          '<p class="text-xs text-gray-400 mb-0.5">👤 ' + (r.owner_name || 'N/A') + '</p>' +
+          '<p class="text-xs text-gray-500 mb-2">📍 ' + (r.city || 'N/A') + ' • 📞 ' + (r.phone || 'N/A') + '</p>' +
+          '<div class="flex items-center gap-2 mb-2">' +
+            '<span class="license-key">' + licenseKey + '</span>' +
+            (r.license_key ? '<button onclick="copyToClipboard(\'' + r.license_key + '\')" class="text-xs" style="color: #ff6b35; background: none; border: none; cursor: pointer;">📋 Copy</button>' : '') +
+          '</div>' +
+          '<div class="flex gap-2 mt-3">' +
+            '<button onclick="viewRetailer(\'' + r.id + '\')" class="btn-secondary text-xs py-1.5 px-3 flex-1">View</button>' +
+            '<button onclick="toggleRetailer(\'' + r.id + '\', ' + (r.is_active !== false) + ')" class="btn-secondary text-xs py-1.5 px-3 flex-1">' + (r.is_active !== false ? 'Suspend' : 'Activate') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openAddRetailerModal() {
+  document.getElementById('addRetailerForm').reset();
+  document.getElementById('retLimit').value = '50';
+  openModal('addRetailerModal');
+}
+
+async function handleAddRetailer(e) {
+  e.preventDefault();
+  
+  const data = {
+    name: document.getElementById('retName').value.trim(),
+    owner_name: document.getElementById('retOwner').value.trim(),
+    email: document.getElementById('retEmail').value.trim(),
+    phone: document.getElementById('retPhone').value.trim(),
+    city: document.getElementById('retCity').value.trim(),
+    address: document.getElementById('retAddress').value.trim(),
+    device_limit: parseInt(document.getElementById('retLimit').value) || 50,
+    license_key: generateLicenseKey(),
+    is_active: true
+  };
+  
+  if (!data.name || !data.owner_name || !data.email || !data.phone || !data.city) {
+    showToast('Please fill all required fields', 'error');
+    return;
+  }
+  
+  try {
+    const result = await sb.from('businesses').insert(data).select();
+    
+    if (result.error) throw result.error;
+    
+    showToast('Retailer added! Key: ' + data.license_key, 'success');
+    closeModal('addRetailerModal');
+    loadRetailers();
+  } catch (err) {
+    console.error('Add retailer error:', err);
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+async function toggleRetailer(id, currentActive) {
+  try {
+    const result = await sb
+      .from('businesses')
+      .update({ is_active: !currentActive })
+      .eq('id', id);
+    
+    if (result.error) throw result.error;
+    
+    showToast(currentActive ? 'Retailer suspended' : 'Retailer activated', 'success');
+    loadRetailers();
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+function viewRetailer(id) {
+  const r = allRetailers.find(function(x) { return x.id === id; });
+  if (!r) return;
+  
+  const msg = 'Name: ' + r.name + '\nOwner: ' + r.owner_name + '\nCity: ' + r.city + '\nPhone: ' + r.phone + '\nEmail: ' + r.email + '\nLicense: ' + (r.license_key || 'N/A');
+  alert(msg);
+}
+
+// ═══════════════════════════════════════════════════
+// SESSION CHECK
 // ═══════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', async function() {
-  console.log('🌐 Page loaded — checking session...');
+  console.log('🌐 Page loaded');
   
   try {
     const sessionResult = await sb.auth.getSession();
-    console.log('📥 Session check:', sessionResult);
     
     if (sessionResult.data && sessionResult.data.session) {
       const user = sessionResult.data.session.user;
-      console.log('🔐 Session found:', user.email);
       
       const profileResult = await sb
         .from('profiles')
@@ -431,14 +748,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         .maybeSingle();
       
       if (profileResult.data && profileResult.data.role === 'master_admin') {
-        console.log('✅ Session restored');
         showSection('dashboardSection');
-        loadDashboard();
         return;
       }
     }
     
-    console.log('📍 No session — showing login');
     showSection('loginSection');
   } catch (err) {
     console.error('Session error:', err);
@@ -446,7 +760,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
 
-console.log('✅ Script loaded completely');
+console.log('✅ Ready');
 </script>
 
 </body>
