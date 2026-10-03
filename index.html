@@ -39,23 +39,16 @@ tailwind.config = {
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 html, body {
-  margin: 0;
-  padding: 0;
-  background: #0a0a0f;
-  color: #fff;
+  margin: 0; padding: 0;
+  background: #0a0a0f; color: #fff;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
 }
-
 .hidden { display: none !important; }
 
-/* Glass Cards */
 .glass-card {
   background: rgba(19, 19, 26, 0.85);
   backdrop-filter: blur(16px);
@@ -63,78 +56,37 @@ html, body {
   border: 1px solid #1f1f2e;
   border-radius: 20px;
 }
-
 .glass-card-glow {
   background: rgba(19, 19, 26, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 107, 53, 0.3);
-  box-shadow: 0 0 40px -5px rgba(255, 107, 53, 0.22),
-              0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 40px -5px rgba(255, 107, 53, 0.22), 0 8px 32px rgba(0, 0, 0, 0.6);
   border-radius: 20px;
 }
-
-/* Interactive Cards */
-.interactive-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+.interactive-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .interactive-card:hover {
   transform: translateY(-4px);
   border-color: rgba(255, 107, 53, 0.4);
   box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.15);
 }
 
-/* Background Mesh Glow */
 .mesh-glow {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(100px);
-  pointer-events: none;
-  opacity: 0.22;
-  z-index: 0;
+  position: fixed; border-radius: 50%;
+  filter: blur(100px); pointer-events: none;
+  opacity: 0.22; z-index: 0;
 }
-.mesh-1 {
-  width: 400px; height: 400px;
-  background: #ff6b35;
-  top: -100px; left: -100px;
-  animation: floatMesh1 15s infinite alternate ease-in-out;
-}
-.mesh-2 {
-  width: 500px; height: 500px;
-  background: #8b5cf6;
-  bottom: -150px; right: -150px;
-  animation: floatMesh2 20s infinite alternate ease-in-out;
-}
-.mesh-3 {
-  width: 300px; height: 300px;
-  background: #22c55e;
-  top: 40%; left: 60%;
-  animation: floatMesh3 18s infinite alternate ease-in-out;
-  opacity: 0.12;
-}
-@keyframes floatMesh1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, 40px) scale(1.1); }
-}
-@keyframes floatMesh2 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-40px, -30px) scale(1.15); }
-}
-@keyframes floatMesh3 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-50px, 30px) scale(1.2); }
-}
+.mesh-1 { width: 400px; height: 400px; background: #ff6b35; top: -100px; left: -100px; animation: floatMesh1 15s infinite alternate ease-in-out; }
+.mesh-2 { width: 500px; height: 500px; background: #8b5cf6; bottom: -150px; right: -150px; animation: floatMesh2 20s infinite alternate ease-in-out; }
+.mesh-3 { width: 300px; height: 300px; background: #22c55e; top: 40%; left: 60%; animation: floatMesh3 18s infinite alternate ease-in-out; opacity: 0.12; }
+@keyframes floatMesh1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 40px) scale(1.1); } }
+@keyframes floatMesh2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-40px, -30px) scale(1.15); } }
+@keyframes floatMesh3 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-50px, 30px) scale(1.2); } }
 
-/* Floating Particles */
 .particle {
-  position: fixed;
-  width: 4px;
-  height: 4px;
-  background: #ff6b35;
-  border-radius: 50%;
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: 0;
+  position: fixed; width: 4px; height: 4px;
+  background: #ff6b35; border-radius: 50%;
+  opacity: 0.4; pointer-events: none; z-index: 0;
 }
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 0.4; }
@@ -142,301 +94,149 @@ html, body {
   100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
 }
 
-/* Buttons */
 .btn-primary {
   background: linear-gradient(135deg, #ff6b35 0%, #ea580c 100%);
-  color: #fff;
-  font-weight: 600;
-  padding: 14px 24px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
+  color: #fff; font-weight: 600;
+  padding: 14px 24px; border-radius: 14px;
+  border: none; cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 8px 24px -6px rgba(255, 107, 53, 0.4);
   font-size: 15px;
 }
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px -6px rgba(255, 107, 53, 0.5);
-}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px -6px rgba(255, 107, 53, 0.5); }
 .btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  font-weight: 500;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1px solid #1f1f2e;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05); color: #fff;
+  font-weight: 500; padding: 10px 18px;
+  border-radius: 12px; border: 1px solid #1f1f2e;
+  cursor: pointer; transition: all 0.2s ease; font-size: 14px;
 }
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 107, 53, 0.3);
-}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 107, 53, 0.3); }
 
-/* Input Fields */
 .input-field {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #1f1f2e;
   border-radius: 12px;
   padding: 14px 16px 14px 46px;
-  color: #fff;
-  font-size: 15px;
-  width: 100%;
-  transition: all 0.2s ease;
-  outline: none;
+  color: #fff; font-size: 15px;
+  width: 100%; transition: all 0.2s ease; outline: none;
 }
-.input-field:focus {
-  border-color: #ff6b35;
-  background: rgba(255, 107, 53, 0.05);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-}
+.input-field:focus { border-color: #ff6b35; background: rgba(255, 107, 53, 0.05); box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1); }
 .input-field::placeholder { color: #6b7280; }
-
-.input-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  width: 18px;
-  height: 18px;
-  pointer-events: none;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  cursor: pointer;
-  padding: 4px;
-  background: none;
-  border: none;
-}
+.input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6b7280; width: 18px; height: 18px; pointer-events: none; }
+.password-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #6b7280; cursor: pointer; padding: 4px; background: none; border: none; }
 .password-toggle:hover { color: #ff6b35; }
 
-/* Toast Notifications */
 .toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
+  position: fixed; top: 20px; left: 50%;
   transform: translateX(-50%) translateY(-100px);
-  padding: 14px 20px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 14px 20px; border-radius: 14px;
+  font-size: 14px; font-weight: 500;
   z-index: 9999;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 90%;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; gap: 10px;
+  max-width: 90%; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-.toast-success {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #4ade80;
-  backdrop-filter: blur(10px);
-}
-.toast-error {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  backdrop-filter: blur(10px);
-}
-.toast-info {
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: #a78bfa;
-  backdrop-filter: blur(10px);
-}
+.toast-success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; backdrop-filter: blur(10px); }
+.toast-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; backdrop-filter: blur(10px); }
+.toast-info { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); color: #a78bfa; backdrop-filter: blur(10px); }
 
-/* Stat Cards */
 .stat-card {
-  padding: 20px;
-  border-radius: 18px;
+  padding: 20px; border-radius: 18px;
   background: linear-gradient(145deg, rgba(19, 19, 26, 0.9), rgba(15, 15, 20, 0.9));
   border: 1px solid #1f1f2e;
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
 }
 .stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 4px;
-  height: 100%;
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 4px; height: 100%;
   background: linear-gradient(180deg, #ff6b35, #ea580c);
 }
 
-/* Bottom Nav */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: fixed; bottom: 0; left: 0; right: 0;
   background: rgba(10, 10, 15, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid #1f1f2e;
   padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-  z-index: 100;
-  display: flex;
-  justify-content: space-around;
+  z-index: 100; display: flex; justify-content: space-around;
 }
 .nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 4px;
-  color: #6b7280;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  background: none;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 2px; padding: 8px 4px;
+  color: #6b7280; font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease;
+  border: none; background: none;
 }
-.nav-item.active {
-  color: #ff6b35;
-}
-.nav-item.active svg {
-  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6));
-}
+.nav-item.active { color: #ff6b35; }
+.nav-item.active svg { filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6)); }
 .nav-item svg { width: 22px; height: 22px; }
 
-/* Modals */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
+  z-index: 500; display: flex;
+  align-items: center; justify-content: center;
+  padding: 20px; animation: fadeIn 0.2s ease;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
 .modal-content {
   background: #13131a;
   border: 1px solid #1f1f2e;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
+  border-radius: 20px; width: 100%;
+  max-width: 500px; max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* Spinner */
 .spinner {
-  width: 20px;
-  height: 20px;
+  width: 20px; height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #fff;
-  border-radius: 50%;
+  border-top-color: #fff; border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Badge */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.badge-success {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-}
-.badge-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-}
-.badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-}
-.badge-info {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-}
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.badge-info { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #0a0a0f; }
 ::-webkit-scrollbar-thumb { background: #1f1f2e; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #ff6b35; }
 
-/* Progress Ring */
-.progress-ring-circle {
-  transition: stroke-dashoffset 0.6s ease;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-}
-
-/* Fade In Animation */
-.fade-in {
-  animation: fadeInUp 0.4s ease;
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.fade-in { animation: fadeInUp 0.4s ease; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
+
 <body class="bg-bgDark text-white min-h-screen">
 
-<!-- Background Mesh Glows -->
 <div class="mesh-glow mesh-1"></div>
 <div class="mesh-glow mesh-2"></div>
 <div class="mesh-glow mesh-3"></div>
 
-<!-- Toast Container -->
 <div id="toast" class="toast">
   <i data-lucide="info" class="w-5 h-5"></i>
   <span id="toast-msg">Message</span>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- LOGIN SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="loginSection" class="app-section relative z-10 min-h-screen flex items-center justify-center p-4">
-
   <div class="w-full max-w-md">
-    <!-- Login Card -->
     <div class="glass-card-glow p-8 fade-in">
-
-      <!-- Logo -->
       <div class="flex justify-center mb-6">
         <div class="w-20 h-20 rounded-3xl flex items-center justify-center"
-             style="background: linear-gradient(135deg, #ff6b35 0%, #22c55e 100%);
-                    box-shadow: 0 12px 40px -8px rgba(255, 107, 53, 0.5);">
+             style="background: linear-gradient(135deg, #ff6b35 0%, #22c55e 100%); box-shadow: 0 12px 40px -8px rgba(255, 107, 53, 0.5);">
           <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             <path d="M9 12l2 2 4-4" stroke="#fff"/>
@@ -444,13 +244,11 @@ html, body {
         </div>
       </div>
 
-      <!-- Title -->
       <h1 class="text-center text-3xl font-extrabold mb-2 bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
         Secure Plug Admin
       </h1>
       <p class="text-center text-sm text-gray-400 mb-7">Device EMI Management Portal</p>
 
-      <!-- Welcome Box -->
       <div class="flex items-center gap-3 p-3 mb-6 rounded-2xl"
            style="background: rgba(255, 107, 53, 0.08); border: 1px solid rgba(255, 107, 53, 0.15);">
         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -466,49 +264,35 @@ html, body {
         </div>
       </div>
 
-      <!-- Error Alert -->
       <div id="loginError" class="hidden p-3 mb-4 rounded-xl text-sm"
-           style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;">
-      </div>
+           style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;"></div>
 
-      <!-- Login Form -->
-      <form id="loginForm" onsubmit="handleLogin(event); return false;" class="space-y-4">
-
-        <!-- Email -->
+      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin(event); return false;" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-gray-400 mb-2 tracking-wide">ADMIN EMAIL</label>
           <div class="relative">
             <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <path d="m22 7-10 5L2 7"/>
+              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/>
             </svg>
-            <input type="email" id="email" class="input-field" 
-                   value="ladla123457ali@gmail.com" 
-                   placeholder="admin@secureplug.pk" required autocomplete="email">
+            <input type="email" id="email" class="input-field" value="ladla123457ali@gmail.com" placeholder="admin@secureplug.pk" required autocomplete="email">
           </div>
         </div>
 
-        <!-- Password -->
         <div>
           <label class="block text-xs font-semibold text-gray-400 mb-2 tracking-wide">MASTER PASSWORD</label>
           <div class="relative">
             <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
-            <input type="password" id="password" class="input-field" 
-                   placeholder="Enter master password" required 
-                   autocomplete="current-password" style="padding-right: 46px;">
+            <input type="password" id="password" class="input-field" placeholder="Enter master password" required autocomplete="current-password" style="padding-right: 46px;">
             <button type="button" class="password-toggle" onclick="togglePassword()">
               <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                <circle cx="12" cy="12" r="3"/>
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" id="loginBtn" class="btn-primary w-full flex items-center justify-center gap-2">
           <span id="loginBtnText">Sign In to Dashboard</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -517,27 +301,18 @@ html, body {
         </button>
       </form>
 
-      <!-- Footer -->
       <p class="text-center text-xs text-gray-500 mt-5">Authorized for Master Admin only</p>
     </div>
-
-    <!-- Bottom Text -->
     <p class="text-center text-xs text-gray-600 mt-6">Secure Plug • Admin Portal</p>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- DASHBOARD SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="dashboardSection" class="app-section hidden relative z-10 pb-24">
-
-  <!-- Header -->
-  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark"
-          style="background: rgba(10, 10, 15, 0.85);">
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark" style="background: rgba(10, 10, 15, 0.85);">
     <div class="flex items-center justify-between p-4 gap-3">
       <div class="flex items-center gap-2 min-w-0">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-             style="background: linear-gradient(135deg, #ff6b35, #22c55e);">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #ff6b35, #22c55e);">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
@@ -547,31 +322,16 @@ html, body {
           <p class="text-[10px] text-gray-500 leading-tight">Master Admin</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button class="w-9 h-9 rounded-xl flex items-center justify-center relative"
-                style="background: rgba(255,255,255,0.05);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-          </svg>
-          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-danger"></span>
-        </button>
-        <button onclick="handleLogout()" class="w-9 h-9 rounded-xl flex items-center justify-center"
-                style="background: rgba(255,255,255,0.05);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
-      </div>
+      <button onclick="handleLogout()" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.05);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
     </div>
   </header>
 
   <div class="p-4 space-y-4">
-
-    <!-- Welcome Hero Card -->
-    <div class="p-5 rounded-3xl relative overflow-hidden fade-in"
-         style="background: linear-gradient(135deg, #ff6b35 0%, #8b5cf6 100%);">
+    <div class="p-5 rounded-3xl relative overflow-hidden fade-in" style="background: linear-gradient(135deg, #ff6b35 0%, #8b5cf6 100%);">
       <div class="absolute top-0 right-0 w-40 h-40 rounded-full bg-white opacity-10 -mr-10 -mt-10"></div>
       <div class="relative flex items-center justify-between gap-3">
         <div class="min-w-0 flex-1">
@@ -582,133 +342,61 @@ html, body {
         <div class="flex-shrink-0">
           <svg width="70" height="70" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="none"/>
-            <circle cx="50" cy="50" r="40" stroke="white" stroke-width="8" fill="none"
-                    stroke-dasharray="251.2" stroke-dashoffset="32.6" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="40" stroke="white" stroke-width="8" fill="none" stroke-dasharray="251.2" stroke-dashoffset="32.6" stroke-linecap="round"/>
             <text x="50" y="55" text-anchor="middle" fill="white" font-size="18" font-weight="bold">87%</text>
           </svg>
         </div>
       </div>
     </div>
 
-    <!-- Stat Cards -->
     <div class="grid grid-cols-2 gap-3">
-      <!-- Total Retailers -->
       <div class="stat-card interactive-card fade-in">
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-               style="background: rgba(255, 107, 53, 0.15);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
-              <path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/>
-            </svg>
-          </div>
-        </div>
         <p class="text-[11px] text-gray-400 font-medium mb-1">Total Retailers</p>
         <p class="text-2xl font-extrabold text-white" id="statRetailers">0</p>
-        <p class="text-[10px] text-accent mt-1 flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
-          Active network
-        </p>
+        <p class="text-[10px] text-accent mt-1">Active network</p>
       </div>
-
-      <!-- Active Devices -->
       <div class="stat-card interactive-card fade-in">
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-               style="background: rgba(34, 197, 94, 0.15);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6" y="2" width="12" height="20" rx="2"/>
-              <path d="M12 18h.01"/>
-            </svg>
-          </div>
-        </div>
         <p class="text-[11px] text-gray-400 font-medium mb-1">Active Devices</p>
         <p class="text-2xl font-extrabold text-white" id="statDevices">0</p>
         <p class="text-[10px] text-warning mt-1" id="statLocked">0 locked</p>
       </div>
-
-      <!-- Total Revenue -->
       <div class="stat-card interactive-card fade-in">
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-               style="background: rgba(139, 92, 246, 0.15);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="2" x2="12" y2="22"/>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </div>
-        </div>
         <p class="text-[11px] text-gray-400 font-medium mb-1">Revenue</p>
         <p class="text-lg font-extrabold text-white" id="statRevenue">Rs 0</p>
         <p class="text-[10px] text-accent mt-1">Collection</p>
       </div>
-
-      <!-- Overdue EMIs -->
       <div class="stat-card interactive-card fade-in">
-        <div class="flex items-start justify-between mb-3">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-               style="background: rgba(239, 68, 68, 0.15);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-              <path d="M12 9v4"/><path d="M12 17h.01"/>
-            </svg>
-          </div>
-        </div>
         <p class="text-[11px] text-gray-400 font-medium mb-1">Overdue</p>
         <p class="text-2xl font-extrabold text-danger" id="statOverdue">0</p>
         <p class="text-[10px] text-danger mt-1">Needs action</p>
       </div>
     </div>
 
-    <!-- Charts -->
     <div class="glass-card p-4 fade-in">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold">📈 Collections Trend</h3>
-        <span class="text-[10px] text-gray-500">Last 6 months</span>
-      </div>
+      <h3 class="text-sm font-bold mb-3">📈 Collections Trend</h3>
       <div style="height: 180px;"><canvas id="trendChart"></canvas></div>
     </div>
 
     <div class="glass-card p-4 fade-in">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold">🥧 Device Status</h3>
-        <span class="text-[10px] text-gray-500">Live</span>
-      </div>
+      <h3 class="text-sm font-bold mb-3">🥧 Device Status</h3>
       <div style="height: 200px;"><canvas id="statusChart"></canvas></div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="glass-card p-4 fade-in">
       <h3 class="text-sm font-bold mb-3">⚡ Quick Actions</h3>
       <div class="grid grid-cols-2 gap-2">
-        <button onclick="showSection('retailersSection')" class="btn-secondary flex items-center justify-center gap-2 py-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Retailer
-        </button>
-        <button onclick="showSection('devicesSection')" class="btn-secondary flex items-center justify-center gap-2 py-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>
-          View Devices
-        </button>
-        <button onclick="showSection('paymentsSection')" class="btn-secondary flex items-center justify-center gap-2 py-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          Payments
-        </button>
-        <button onclick="showSection('reportsSection')" class="btn-secondary flex items-center justify-center gap-2 py-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          Reports
-        </button>
+        <button onclick="showSection('retailersSection')" class="btn-secondary py-3">+ Add Retailer</button>
+        <button onclick="showSection('devicesSection')" class="btn-secondary py-3">View Devices</button>
+        <button onclick="showSection('paymentsSection')" class="btn-secondary py-3">Payments</button>
+        <button onclick="showSection('reportsSection')" class="btn-secondary py-3">Reports</button>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- RETAILERS SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="retailersSection" class="app-section hidden relative z-10 pb-24">
-  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4"
-          style="background: rgba(10, 10, 15, 0.85);">
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4" style="background: rgba(10, 10, 15, 0.85);">
     <div class="flex items-center justify-between gap-3">
       <div>
         <h2 class="text-lg font-bold">Retailers</h2>
@@ -724,12 +412,9 @@ html, body {
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- DEVICES SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="devicesSection" class="app-section hidden relative z-10 pb-24">
-  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4"
-          style="background: rgba(10, 10, 15, 0.85);">
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4" style="background: rgba(10, 10, 15, 0.85);">
     <h2 class="text-lg font-bold">Devices</h2>
     <p class="text-[11px] text-gray-500" id="deviceCount">Loading...</p>
   </header>
@@ -740,12 +425,9 @@ html, body {
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- PAYMENTS SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="paymentsSection" class="app-section hidden relative z-10 pb-24">
-  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4"
-          style="background: rgba(10, 10, 15, 0.85);">
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4" style="background: rgba(10, 10, 15, 0.85);">
     <h2 class="text-lg font-bold">Payments</h2>
     <p class="text-[11px] text-gray-500" id="paymentCount">Loading...</p>
   </header>
@@ -756,12 +438,9 @@ html, body {
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- REPORTS SECTION -->
-<!-- ═══════════════════════════════════════════ -->
 <section id="reportsSection" class="app-section hidden relative z-10 pb-24">
-  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4"
-          style="background: rgba(10, 10, 15, 0.85);">
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-borderDark p-4" style="background: rgba(10, 10, 15, 0.85);">
     <h2 class="text-lg font-bold">Reports</h2>
     <p class="text-[11px] text-gray-500">Analytics</p>
   </header>
@@ -774,9 +453,7 @@ html, body {
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
 <!-- BOTTOM NAVIGATION -->
-<!-- ═══════════════════════════════════════════ -->
 <nav id="bottomNav" class="bottom-nav hidden">
   <button class="nav-item active" data-section="dashboardSection" onclick="showSection('dashboardSection')">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -791,688 +468,19 @@ html, body {
     <span>Devices</span>
   </button>
   <button class="nav-item" data-section="paymentsSection" onclick="showSection('paymentsSection')">
-    <svg xmlns="http://w
-<!-- ═══════════════════════════════════════════ -->
-<!-- JAVASCRIPT -->
-<!-- ═══════════════════════════════════════════ -->
-<script>
-// ═══════════════════════════════════════════════════
-// STEP 1: SUPABASE CONFIG — DEFINE FIRST
-// ═══════════════════════════════════════════════════
-console.log('🚀 Secure Plug Admin initializing...');
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+    <span>Payments</span>
+  </button>
+  <button class="nav-item" data-section="reportsSection" onclick="showSection('reportsSection')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+    <span>Reports</span>
+  </button>
+</nav>
 
-const SUPABASE_URL = 'https://rmqqhbcvvuojvlefuzjd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcXFoYmN2dnVvanZsZWZ1empkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTYxOTYsImV4cCI6MjEwNjQ5MjE5Nn0.nByMgZiktCybOR-FN-GOXLKNe9Opr9XI3qZxgDr8X8A';
-
-// ═══════════════════════════════════════════════════
-// STEP 2: INITIALIZE SUPABASE CLIENT — IMMEDIATELY
-// ═══════════════════════════════════════════════════
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storage: window.localStorage
-  }
-});
-console.log('✅ Supabase client ready');
-
-// ═══════════════════════════════════════════════════
-// STEP 3: GLOBAL STATE
-// ═══════════════════════════════════════════════════
-let currentUser = null;
-let currentProfile = null;
-let trendChartInstance = null;
-let statusChartInstance = null;
-let reportChartInstance = null;
-
-// ═══════════════════════════════════════════════════
-// STEP 4: UTILITY FUNCTIONS
-// ═══════════════════════════════════════════════════
-
-function showToast(msg, type = 'info') {
-  const toast = document.getElementById('toast');
-  const msgEl = document.getElementById('toast-msg');
-  if (!toast || !msgEl) return;
-  
-  msgEl.textContent = msg;
-  toast.className = 'toast show toast-' + type;
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3500);
-}
-
-function showError(msg) {
-  const errEl = document.getElementById('loginError');
-  if (errEl) {
-    errEl.textContent = msg;
-    errEl.classList.remove('hidden');
-  }
-  showToast(msg, 'error');
-  console.error('❌ Error:', msg);
-}
-
-function hideError() {
-  const errEl = document.getElementById('loginError');
-  if (errEl) errEl.classList.add('hidden');
-}
-
-function togglePassword() {
-  const pwd = document.getElementById('password');
-  const icon = document.getElementById('eyeIcon');
-  if (pwd.type === 'password') {
-    pwd.type = 'text';
-    icon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
-  } else {
-    pwd.type = 'password';
-    icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
-  }
-}
-
-function formatCurrency(amount) {
-  if (!amount || isNaN(amount)) return 'Rs 0';
-  if (amount >= 1000000) return 'Rs ' + (amount / 1000000).toFixed(2) + 'M';
-  if (amount >= 1000) return 'Rs ' + (amount / 1000).toFixed(1) + 'K';
-  return 'Rs ' + Number(amount).toLocaleString();
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 5: NAVIGATION
-// ═══════════════════════════════════════════════════
-
-function showSection(sectionId) {
-  console.log('📍 Showing section:', sectionId);
-  
-  document.querySelectorAll('.app-section').forEach(s => s.classList.add('hidden'));
-  const target = document.getElementById(sectionId);
-  if (!target) return;
-  target.classList.remove('hidden');
-  
-  // Toggle bottom nav
-  const bottomNav = document.getElementById('bottomNav');
-  const loginSection = sectionId === 'loginSection';
-  if (bottomNav) {
-    if (loginSection) bottomNav.classList.add('hidden');
-    else bottomNav.classList.remove('hidden');
-  }
-  
-  // Update active nav
-  document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.section === sectionId);
-  });
-  
-  // Load data based on section
-  if (sectionId === 'dashboardSection') loadDashboardData();
-  if (sectionId === 'retailersSection') loadRetailers();
-  if (sectionId === 'devicesSection') loadDevices();
-  if (sectionId === 'paymentsSection') loadPayments();
-  if (sectionId === 'reportsSection') loadReports();
-  
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 6: LOGIN HANDLER
-// ═══════════════════════════════════════════════════
-
-async function handleLogin(e) {
-  if (e) e.preventDefault();
-  console.log('🔐 Login attempt started...');
-  
-  hideError();
-  
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const btn = document.getElementById('loginBtn');
-  const btnText = document.getElementById('loginBtnText');
-  
-  if (!email || !password) {
-    showError('Please enter email and password');
-    return;
-  }
-  
-  btn.disabled = true;
-  btnText.textContent = 'Signing in...';
-  
-  try {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      console.error('❌ Login error:', error);
-      showError(error.message);
-      btn.disabled = false;
-      btnText.textContent = 'Sign In to Dashboard';
-      return;
-    }
-    
-    console.log('✅ Login success:', data.user.email);
-    
-    // Check profile role
-    const { data: profile, error: profErr } = await sb
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .maybeSingle();
-    
-    if (profErr) {
-      console.error('❌ Profile fetch error:', profErr);
-      showError('Profile error: ' + profErr.message);
-      await sb.auth.signOut();
-      btn.disabled = false;
-      btnText.textContent = 'Sign In to Dashboard';
-      return;
-    }
-    
-    if (!profile || profile.role !== 'master_admin') {
-      console.warn('⚠️ Not a master admin');
-      showError('Access Denied: You are not a Master Admin');
-      await sb.auth.signOut();
-      btn.disabled = false;
-      btnText.textContent = 'Sign In to Dashboard';
-      return;
-    }
-    
-    currentUser = data.user;
-    currentProfile = profile;
-    console.log('✅ Master admin verified:', profile.full_name);
-    
-    showToast('Welcome back, ' + (profile.full_name || 'Sikandar') + '!', 'success');
-    showSection('dashboardSection');
-    
-  } catch (err) {
-    console.error('💥 Exception:', err);
-    showError('Unexpected error: ' + err.message);
-  } finally {
-    btn.disabled = false;
-    btnText.textContent = 'Sign In to Dashboard';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 7: LOGOUT
-// ═══════════════════════════════════════════════════
-
-async function handleLogout() {
-  console.log('🚪 Logging out...');
-  try {
-    await sb.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    document.getElementById('password').value = '';
-    hideError();
-    showSection('loginSection');
-    showToast('Logged out successfully', 'info');
-  } catch (err) {
-    console.error('Logout error:', err);
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 8: LOAD DASHBOARD DATA
-// ═══════════════════════════════════════════════════
-
-async function loadDashboardData() {
-  console.log('📊 Loading dashboard data...');
-  
-  try {
-    // Retailers count
-    const { count: retCount } = await sb
-      .from('businesses')
-      .select('*', { count: 'exact', head: true });
-    setText('statRetailers', retCount || 0);
-    
-    // Devices count
-    const { count: devCount } = await sb
-      .from('devices')
-      .select('*', { count: 'exact', head: true });
-    setText('statDevices', devCount || 0);
-    
-    // Locked devices
-    const { count: lockCount } = await sb
-      .from('devices')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_locked', true);
-    setText('statLocked', (lockCount || 0) + ' locked');
-    
-    // Revenue
-    const { data: payments } = await sb
-      .from('payments')
-      .select('amount');
-    const totalRevenue = (payments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-    setText('statRevenue', formatCurrency(totalRevenue));
-    
-    // Overdue
-    const { count: overdueCount } = await sb
-      .from('emi_plans')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'defaulted');
-    setText('statOverdue', overdueCount || 0);
-    
-    // Draw charts
-    drawTrendChart();
-    drawStatusChart();
-    
-    console.log('✅ Dashboard loaded');
-    
-  } catch (err) {
-    console.error('Dashboard load error:', err);
-  }
-}
-
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 9: CHARTS
-// ═══════════════════════════════════════════════════
-
-function drawTrendChart() {
-  const ctx = document.getElementById('trendChart');
-  if (!ctx) return;
-  
-  if (trendChartInstance) trendChartInstance.destroy();
-  
-  trendChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-      datasets: [{
-        label: 'Collections',
-        data: [4.2, 5.8, 6.5, 7.2, 8.1, 8.45],
-        borderColor: '#ff6b35',
-        backgroundColor: 'rgba(255, 107, 53, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 2.5,
-        pointBackgroundColor: '#ff6b35',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        },
-        x: {
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { display: false }
-        }
-      }
-    }
-  });
-}
-
-function drawStatusChart() {
-  const ctx = document.getElementById('statusChart');
-  if (!ctx) return;
-  
-  if (statusChartInstance) statusChartInstance.destroy();
-  
-  statusChartInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Active', 'Locked', 'Overdue'],
-      datasets: [{
-        data: [65, 25, 10],
-        backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
-        borderWidth: 0,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '70%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#a0a0b0', font: { size: 11 }, padding: 12, usePointStyle: true }
-        }
-      }
-    }
-  });
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 10: LOAD RETAILERS
-// ═══════════════════════════════════════════════════
-
-async function loadRetailers() {
-  console.log('🏪 Loading retailers...');
-  const list = document.getElementById('retailersList');
-  const countEl = document.getElementById('retailerCount');
-  
-  list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">Loading...</p>';
-  
-  try {
-    const { data, error } = await sb
-      .from('businesses')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    if (!data || data.length === 0) {
-      list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">No retailers yet. Add one to get started.</p>';
-      countEl.textContent = '0 retailers';
-      return;
-    }
-    
-    countEl.textContent = data.length + ' retailer' + (data.length > 1 ? 's' : '');
-    
-    list.innerHTML = data.map(r => `
-      <div class="glass-card p-4 interactive-card">
-        <div class="flex items-start gap-3">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm"
-               style="background: linear-gradient(135deg, #ff6b35, #8b5cf6);">
-            ${(r.name || 'R').substring(0, 2).toUpperCase()}
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-2 mb-1">
-              <h3 class="font-bold text-sm truncate">${r.name || 'Unnamed'}</h3>
-              <span class="badge ${r.is_active ? 'badge-success' : 'badge-danger'}">
-                ${r.is_active ? 'Active' : 'Suspended'}
-              </span>
-            </div>
-            <p class="text-xs text-gray-400 mb-0.5">${r.owner_name || 'N/A'}</p>
-            <p class="text-xs text-gray-500 flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              ${r.city || 'N/A'} • ${r.phone || 'N/A'}
-            </p>
-            <div class="flex gap-2 mt-3">
-              <button class="btn-secondary text-xs py-1.5 px-3 flex-1">View</button>
-              <button class="btn-secondary text-xs py-1.5 px-3 flex-1">Edit</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `).join('');
-    
-    if (window.lucide) lucide.createIcons();
-    console.log('✅ Retailers loaded:', data.length);
-    
-  } catch (err) {
-    console.error('Retailers load error:', err);
-    list.innerHTML = '<p class="text-center text-danger py-8 text-sm">Error: ' + err.message + '</p>';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 11: LOAD DEVICES
-// ═══════════════════════════════════════════════════
-
-async function loadDevices() {
-  console.log('📱 Loading devices...');
-  const list = document.getElementById('devicesList');
-  const countEl = document.getElementById('deviceCount');
-  
-  list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">Loading...</p>';
-  
-  try {
-    const { data, error } = await sb
-      .from('devices')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    if (!data || data.length === 0) {
-      list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">No devices registered yet.</p>';
-      countEl.textContent = '0 devices';
-      return;
-    }
-    
-    countEl.textContent = data.length + ' device' + (data.length > 1 ? 's' : '');
-    
-    list.innerHTML = data.map(d => `
-      <div class="glass-card p-4 interactive-card">
-        <div class="flex items-start justify-between gap-2 mb-2">
-          <div class="min-w-0">
-            <h3 class="font-bold text-sm truncate">${d.model || 'Unknown Device'}</h3>
-            <p class="text-[11px] text-gray-500 font-mono">IMEI: ${d.imei || 'N/A'}</p>
-          </div>
-          <span class="badge ${d.is_locked ? 'badge-danger' : 'badge-success'}">
-            ${d.is_locked ? '🔒 Locked' : '✓ Active'}
-          </span>
-        </div>
-        <div class="flex gap-2 mt-3">
-          <button class="btn-secondary text-xs py-1.5 px-3 flex-1">Details</button>
-          <button class="btn-secondary text-xs py-1.5 px-3 flex-1" 
-                  style="background: ${d.is_locked ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)'};
-                         color: ${d.is_locked ? '#4ade80' : '#f87171'};">
-            ${d.is_locked ? '🔓 Unlock' : '🔒 Lock'}
-          </button>
-        </div>
-      </div>
-    `).join('');
-    
-    console.log('✅ Devices loaded:', data.length);
-    
-  } catch (err) {
-    console.error('Devices load error:', err);
-    list.innerHTML = '<p class="text-center text-danger py-8 text-sm">Error: ' + err.message + '</p>';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 12: LOAD PAYMENTS
-// ═══════════════════════════════════════════════════
-
-async function loadPayments() {
-  console.log('💳 Loading payments...');
-  const list = document.getElementById('paymentsList');
-  const countEl = document.getElementById('paymentCount');
-  
-  list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">Loading...</p>';
-  
-  try {
-    const { data, error } = await sb
-      .from('payments')
-      .select('*')
-      .order('payment_date', { ascending: false })
-      .limit(50);
-    
-    if (error) throw error;
-    
-    if (!data || data.length === 0) {
-      list.innerHTML = '<p class="text-center text-gray-500 py-8 text-sm">No payments recorded yet.</p>';
-      countEl.textContent = '0 payments';
-      return;
-    }
-    
-    countEl.textContent = data.length + ' payment' + (data.length > 1 ? 's' : '');
-    
-    list.innerHTML = data.map(p => `
-      <div class="glass-card p-4">
-        <div class="flex items-center justify-between gap-3">
-          <div class="min-w-0 flex-1">
-            <p class="text-[11px] text-gray-500 font-mono mb-1">${p.receipt_number || 'TRX-' + (p.id || '').substring(0, 8)}</p>
-            <p class="text-sm font-bold text-accent">${formatCurrency(p.amount)}</p>
-            <p class="text-[11px] text-gray-400 mt-0.5">
-              ${p.payment_method || 'Cash'} • ${p.payment_date || 'N/A'}
-            </p>
-          </div>
-          <span class="badge badge-success">✓ Verified</span>
-        </div>
-      </div>
-    `).join('');
-    
-    console.log('✅ Payments loaded:', data.length);
-    
-  } catch (err) {
-    console.error('Payments load error:', err);
-    list.innerHTML = '<p class="text-center text-danger py-8 text-sm">Error: ' + err.message + '</p>';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 13: LOAD REPORTS
-// ═══════════════════════════════════════════════════
-
-async function loadReports() {
-  console.log('📈 Loading reports...');
-  const ctx = document.getElementById('reportChart');
-  if (!ctx) return;
-  
-  if (reportChartInstance) reportChartInstance.destroy();
-  
-  reportChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Lahore', 'Karachi', 'Islamabad', 'Faisalabad', 'Peshawar', 'Multan'],
-      datasets: [{
-        label: 'Recovery %',
-        data: [95, 92, 97, 88, 90, 94],
-        backgroundColor: '#ff6b35',
-        borderRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        },
-        x: {
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { display: false }
-        }
-      }
-    }
-  });
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 14: MODAL HANDLERS
-// ═══════════════════════════════════════════════════
-
-function openAddRetailerModal() {
-  document.getElementById('addRetailerModal').classList.remove('hidden');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.add('hidden');
-}
-
-async function handleAddRetailer(e) {
-  e.preventDefault();
-  console.log('➕ Adding retailer...');
-  
-  const data = {
-    name: document.getElementById('retName').value.trim(),
-    owner_name: document.getElementById('retOwner').value.trim(),
-    email: document.getElementById('retEmail').value.trim(),
-    phone: document.getElementById('retPhone').value.trim(),
-    city: document.getElementById('retCity').value.trim(),
-    device_limit: parseInt(document.getElementById('retLimit').value) || 50,
-    is_active: true
-  };
-  
-  if (!data.name || !data.owner_name || !data.email || !data.phone || !data.city) {
-    showToast('Please fill all required fields', 'error');
-    return;
-  }
-  
-  try {
-    const { error } = await sb.from('businesses').insert(data);
-    if (error) throw error;
-    
-    showToast('Retailer added successfully!', 'success');
-    closeModal('addRetailerModal');
-    document.getElementById('addRetailerForm').reset();
-    loadRetailers();
-    
-  } catch (err) {
-    console.error('Add retailer error:', err);
-    showToast('Error: ' + err.message, 'error');
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// STEP 15: SESSION CHECK ON PAGE LOAD
-// ════════════════════════════════
-// ═══════════════════════════════════════════════════
-// STEP 15: SESSION CHECK ON PAGE LOAD
-// ═══════════════════════════════════════════════════
-
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🌐 Page loaded, checking session...');
-  
-  // Create floating particles
-  for (let i = 0; i < 8; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.top = (100 + Math.random() * 20) + '%';
-    p.style.animation = `floatUp ${8 + Math.random() * 8}s infinite ease-in-out`;
-    p.style.animationDelay = Math.random() * 5 + 's';
-    document.body.appendChild(p);
-  }
-  
-  if (window.lucide) lucide.createIcons();
-  
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    
-    if (session) {
-      console.log('🔐 Session found:', session.user.email);
-      
-      const { data: profile } = await sb
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .maybeSingle();
-      
-      if (profile && profile.role === 'master_admin') {
-        currentUser = session.user;
-        currentProfile = profile;
-        console.log('✅ Master admin session restored');
-        showSection('dashboardSection');
-        return;
-      } else {
-        console.warn('⚠️ Session user is not master_admin');
-        await sb.auth.signOut();
-      }
-    }
-    
-    console.log('📍 No session, showing login');
-    showSection('loginSection');
-    
-  } catch (err) {
-    console.error('Session check error:', err);
-    showSection('loginSection');
-  }
-});
-
-// ═══════════════════════════════════════════════════
-// STEP 16: AUTH STATE CHANGE
-// ═══════════════════════════════════════════════════
-
-sb.auth.onAuthStateChange((event, session) => {
-  console.log('🔄 Auth state changed:', event);
-  if (event === 'SIGNED_OUT') {
-    currentUser = null;
-    currentProfile = null;
-  }
-});
-
-console.log('✅ Secure Plug Admin ready — awaiting user action');
-</script>
-
-</body>
-</html>
+<!-- ADD RETAILER MODAL -->
+<div id="addRetailerModal" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('addRetailerModal')">
+  <div class="modal-content p-5" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold">Add Retailer</h3>
+      <button onclick="closeModal('addRetailerModal')" class="text-gray-400 hover:text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line
